@@ -1,1 +1,61 @@
 /* You can add global styles to this file, and also import other style files */
+
+* {
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  width: 100vw;
+  height: 100vh;
+}
+
+::-webkit-scrollbar {
+  width: 5px;
+}
+
+/* Track */
+::-webkit-scrollbar-track {
+  box-shadow: inset 0 0 5px rgb(12, 12, 12);
+  border-radius: 10px;
+}
+
+/* Handle */
+::-webkit-scrollbar-thumb {
+  background: rgb(110, 110, 110);
+  border-radius: 10px;
+}
+
+/* Handle on hover */
+::-webkit-scrollbar-thumb:hover {
+  background: rgb(90, 90, 90);
+}
+
+.text {
+  color: rgba(255, 249, 199, 0.9);
+}
+
+.bg-head {
+  background-color: rgb(19, 19, 19);
+}
+
+.bg-content {
+  background-color: rgba(13, 10, 17, 0.9);
+}
+
+.card {
+  background-color: rgba(26, 26, 26, 0.8);
+  border-radius: 30px;
+  margin: 10px;
+}
+
+.center {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.row {
+  width: auto;
+  height: auto;
+}
