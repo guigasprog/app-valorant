@@ -7,6 +7,7 @@ export class Agent {
   background!: string;
   backgroundGradientColors!: string[];
   isPlayableCharacter!: boolean;
+  bustPortrait!: string;
   /*"bustPortrait": "https://media.valorant-api.com/agents/e370fa57-4757-3604-3648-499e1f642d3f/fullportrait.png",
     "fullPortrait": "https://media.valorant-api.com/agents/e370fa57-4757-3604-3648-499e1f642d3f/fullportrait.png",
     "fullPortraitV2": "https://media.valorant-api.com/agents/e370fa57-4757-3604-3648-499e1f642d3f/fullportrait.png",

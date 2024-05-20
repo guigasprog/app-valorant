@@ -2,11 +2,12 @@ import { Component, OnInit } from '@angular/core';
 import { AsideComponent } from './components/aside/aside.component';
 import { MainService } from '../../services/main.service';
 import { Agent, Agents } from '../../domain/agent/agent.model';
+import { CarroselComponent } from './components/carrosel/carrosel.component';
 
 @Component({
   selector: 'app-main',
   standalone: true,
-  imports: [AsideComponent],
+  imports: [AsideComponent, CarroselComponent],
   template: `
     <div class="container">
       <header class="bg-head"><h1 class="text">Oie</h1></header>
@@ -16,12 +17,14 @@ import { Agent, Agents } from '../../domain/agent/agent.model';
           @if(agents) {
           <app-aside
             [agents]="agents"
-            (selectedAgent)="selectingAgent($event)"
+            (selectedAgent)="selectedAgent = $event"
           />
           }
         </aside>
-        <div class="center" style="color: white;">
-          {{ selectedAgent.displayName }}
+        <div class="content" style="color: white;">
+          @if(selectedAgent) {
+          <app-carrosel [agent]="selectedAgent" />
+          }
         </div>
       </main>
     </div>
@@ -48,8 +51,8 @@ import { Agent, Agents } from '../../domain/agent/agent.model';
           border-radius: 20px;
           overflow: hidden;
       }
-      div {
-          width: 80%;
+      .content {
+          width: 75%;
           height: 100%;
       }
     }
