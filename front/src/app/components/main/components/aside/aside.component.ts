@@ -1,5 +1,6 @@
+import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { Agent, Agents } from '../../../../domain/agent/agent.model';
 import { NgStyle } from '@angular/common';
-import { Component, EventEmitter, Output } from '@angular/core';
 
 @Component({
   selector: 'app-aside',
@@ -7,77 +8,75 @@ import { Component, EventEmitter, Output } from '@angular/core';
   imports: [NgStyle],
   template: `
     <main>
-      @for (item of items; track $index) {
+      @for (agent of agents; track $index) { @if(agent.isPlayableCharacter) {
       <div
-        [ngStyle]="{ 'border-radius': item.selected ? '10px' : '15px' }"
         class="row center card"
-        (click)="selecionando(item)"
+        (click)="selectedAgent.emit(agent)"
+        style="background-image: linear-gradient(to right, #{{
+          agent.backgroundGradientColors[0]
+        }}, #{{ agent.backgroundGradientColors[1] }}
+        , #{{ agent.backgroundGradientColors[2] }}
+        , #{{ agent.backgroundGradientColors[3] }});"
       >
-        <div
-          [ngStyle]="{ 'margin-left': item.selected ? '-20px' : '0px' }"
-          class="icon"
-        ></div>
-        <div
-          [ngStyle]="{ 'margin-left': item.selected ? '-20px' : '0px' }"
-          class="content center"
-        >
-          {{ item.name }}
+        <div class="icon">
+          <img src="{{ agent.displayIconSmall }}" alt="icon-agent" />
+        </div>
+        <div class="content caracter">
+          <img src="{{ agent.background }}" />
         </div>
       </div>
-      }
+      } }
     </main>
   `,
   styles: `
   main {
     width: 100%;
     height: 100%;
+    overflow: hidden;
     overflow-y: scroll;
+    margin: 0 auto;
     .card {
-      height: 10%;
-      border-radius: 15px;
-      border: 2px solid white;
-      overflow: hidden;
-      transition: 500ms;
+      margin: 10px;
+      display: flex;
+      width: 95%;
+      height: auto;
+      border-radius: 10px;
+      position: relative;
       .icon {
-        transition: 500ms;
-        width: 30%;
-        height: 100%;
-        background-color: red;
+        width: 25%;
+        height: auto;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        background-color: white;
+        border-radius: 100%;
+        overflow: hidden;
+        margin-left: 10%;
+        img {
+          width: 100%;
+        }
       }
-      .content {
-        transition: 500ms;
+      .caracter {
         width: 70%;
-        height: 100%;
-        background-color: yellow;
+        height: 80px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        overflow: hidden;
+        img {
+          width: 100%;
+          height: auto;
+        }
       }
+      transition: 300ms;
     }
     .card:hover {
-      border-radius: 10px !important;
-      .icon {
-        margin-left: -20px !important;
-      }
-      .content {
-        margin-left: -20px !important;
-      }
+      scale: 1.05;
     }
-  }`,
+  }
+  `,
 })
 export class AsideComponent {
-  items: any[] = [
-    { name: 'Omen', selected: false },
-    { name: 'Yoru', selected: false },
-    { name: 'Killjoy', selected: false },
-    { name: 'Sova', selected: false },
-    { name: 'Iso', selected: false },
-    { name: 'Jett', selected: false },
-    { name: 'Cypher', selected: false },
-  ];
-  @Output() teste = new EventEmitter<any>();
-
-  public selecionando(ev: any) {
-    this.items.forEach((item) => {
-      item != ev ? (item.selected = false) : (item.selected = true);
-    });
-    this.teste.emit(ev);
-  }
+  @Input() agents!: Agents;
+  @Output() selectedAgent = new EventEmitter<Agent>();
 }
