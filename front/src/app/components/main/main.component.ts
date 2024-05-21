@@ -3,19 +3,40 @@ import { AsideComponent } from './components/aside/aside.component';
 import { MainService } from '../../services/main.service';
 import { Agent, Agents } from '../../domain/agent/agent.model';
 import { CarroselComponent } from './components/carrosel/carrosel.component';
+import { ToastComponent } from '../toast/toast.component';
 
 @Component({
   selector: 'app-main',
   standalone: true,
-  imports: [AsideComponent, CarroselComponent],
+  imports: [AsideComponent, CarroselComponent, ToastComponent],
   template: `
+    <toast />
     <div class="container">
-      <header class="bg-head"><h1 class="text">Oie</h1></header>
+      <header class="bg-head"><h1 class="title">Oie</h1></header>
 
-      <main class="bg-content" [style]="selectedAgent != undefined ? 
-      {backgroundImage: 'linear-gradient('+randomDeg+'deg, #'+selectedAgent.backgroundGradientColors[0]+', #'+ selectedAgent.backgroundGradientColors[1] +'
-        , #'+ selectedAgent.backgroundGradientColors[2] +'
-        , #'+ selectedAgent.backgroundGradientColors[3] +')'} : null">
+      <main
+        class="bg-content"
+        [style]="
+          selectedAgent != undefined
+            ? {
+                backgroundImage:
+                  'linear-gradient(' +
+                  randomDeg +
+                  'deg, #' +
+                  selectedAgent.backgroundGradientColors[0] +
+                  ', #' +
+                  selectedAgent.backgroundGradientColors[1] +
+                  '
+        , #' +
+                  selectedAgent.backgroundGradientColors[2] +
+                  '
+        , #' +
+                  selectedAgent.backgroundGradientColors[3] +
+                  ')'
+              }
+            : null
+        "
+      >
         <aside class="card">
           @if(agents) {
           <app-aside
@@ -24,7 +45,7 @@ import { CarroselComponent } from './components/carrosel/carrosel.component';
           />
           }
         </aside>
-        <div class="content" style="color: white;">
+        <div class="content">
           @if(selectedAgent) {
           <app-carrosel [agents]="agents" [agent]="selectedAgent" />
           }
@@ -70,10 +91,10 @@ export class MainComponent implements OnInit {
   constructor(private mainService: MainService) {}
 
   public selectingAgent(agent: Agent) {
-    console.log(this.selectedAgent)
+    console.log(this.selectedAgent);
     this.selectedAgent = agent;
-    this.randomDeg = Math.floor(Math.random() * (360 - 0) + 0)
-    console.log(this.randomDeg)
+    this.randomDeg = Math.floor(Math.random() * (360 - 0) + 0);
+    console.log(this.randomDeg);
   }
 
   // style="background-image: linear-gradient('+randomDeg+'deg, #'+

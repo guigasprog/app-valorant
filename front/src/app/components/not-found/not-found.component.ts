@@ -7,16 +7,18 @@ import { RouterLink } from '@angular/router';
   imports: [RouterLink],
   template: `
     <main class="bg-content">
-      <h2 class="text">404</h2>
-      <div class="background"><h1>404</h1></div>
+      <h2 class="title">404</h2>
+      <div class="background"><h1 class="text-secondary">404</h1></div>
     </main>
     <div class="card">
-      <header><h2 class="text">Error 404</h2></header>
+      <header><h2 class="body bold">Error 404</h2></header>
       <main>
-        <h2 class="text">
+        <h2 class="body">
           Page not found<br />Hit the button below to go back
         </h2>
-        <button routerLink="/">Back</button>
+        <button class="primary" routerLink="/">
+          <h1 class="body">Back</h1>
+        </button>
       </main>
     </div>
   `,
@@ -29,31 +31,20 @@ import { RouterLink } from '@angular/router';
     left: 0.5%;
     header {
         width: 100%;
-        height: 30%;
+        height: 20%;
         display: flex;
         justify-content: center;
         align-items: center;
     }
     main {
         width: 100%;
-        height: 70%;
+        height: 80%;
         display: flex;
         justify-content: center;
         align-items: center;
         text-align: center;
         flex-direction: column;
-        button {
-            margin-top: 10px;
-            width: 180px;
-            height: 60px;
-            border-radius: 15px;
-            border: 0;
-            transition: 100ms;
-        }
-        button:hover {
-            border-radius: 10px;
-            background-color: rgba(231, 231, 231, 0.9);
-        }
+        gap: 40px;
     }
 
   }
@@ -69,8 +60,8 @@ import { RouterLink } from '@angular/router';
     .background {
         position: absolute;
         font-size: 380px;
-        top: 5%;
-        left: 25%;
+        top: 6%;
+        left: 15%;
         color: rgba(85, 85, 85, 0.8);
         z-index: 0;
     }

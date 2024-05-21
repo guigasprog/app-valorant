@@ -1,13 +1,76 @@
 /* You can add global styles to this file, and also import other style files */
 
+@import url("https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300..700&display=swap");
+
+:root {
+  --primary: #ffe457;
+  --primary-hover: #f7d83d;
+  --warning: #fab400;
+  --warning-hover: #ffcd4d;
+  --danger: #d12424;
+  --danger-hover: #e04a4a;
+  --secondary: #2b0a56;
+  --secondary-hover: #3c1272;
+  --success: #27b114;
+  --bg-success: #51fc3ab0;
+  --error: #7d1e00;
+  --bg-alpha: #ffffff;
+  --bg-beta: #64646420;
+  --text-alpha: #111111;
+  --text-delta: #494949a1;
+  --bordering: #2b0a56;
+  --disabled: #898989;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --primary: #b73cff;
+    --primary-hover: #d48efd;
+    --warning: #fab400;
+    --warning-hover: #ffcd4d;
+    --danger: #c23e3e;
+    --danger-hover: #e93535;
+    --secondary: #fd6cd2;
+    --secondary-hover: #a31457;
+    --success: #64be58;
+    --bg-success: #73ff619d;
+    --error: #a24141;
+    --bg-alpha: #111111;
+    --bg-beta: #41414120;
+    --text-alpha: #ffffff;
+    --text-delta: #b8b8b8a1;
+    --bordering: #686868;
+    --disabled: #898989;
+  }
+}
+
 * {
   margin: 0;
   padding: 0;
+  color: var(--text-alpha);
+}
+
+.title {
+  font-size: 32px;
+  font-weight: bold;
+}
+.body {
+  font-size: 18px;
+}
+.bold {
+  font-weight: bold;
+}
+.small {
+  font-size: 14px;
+}
+.text-secondary {
+  color: var(--text-delta);
 }
 
 body {
   width: 100vw;
   height: 100vh;
+  background-color: var(--bg-alpha);
 }
 
 ::-webkit-scrollbar {
@@ -16,36 +79,49 @@ body {
 
 /* Track */
 ::-webkit-scrollbar-track {
-  box-shadow: inset 0 0 5px rgb(12, 12, 12);
+  box-shadow: inset 0 0 5px var(--bordering);
   border-radius: 10px;
 }
 
 /* Handle */
 ::-webkit-scrollbar-thumb {
-  background: rgb(110, 110, 110);
+  background: var(--bg-alpha);
   border-radius: 10px;
 }
 
 /* Handle on hover */
 ::-webkit-scrollbar-thumb:hover {
-  background: rgb(90, 90, 90);
+  background: var(--bg-beta);
 }
 
-.text {
-  color: rgba(255, 249, 199, 0.9);
+p,
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  color: var(--text-alpha);
+  font-family: "Space Grotesk", sans-serif;
 }
 
 .bg-head {
-  background-color: rgb(19, 19, 19);
+  background-color: var(--bg-beta);
 }
 
 .bg-content {
-  background-color: rgba(13, 10, 17, 0.9);
+  background-color: var(--bg-alpha);
 }
 
 .card {
-  background-color: rgba(26, 26, 26, 0.8);
+  background-color: var(--bg-beta);
   border-radius: 30px;
+  margin: 10px;
+}
+
+.card-success {
+  background-color: var(--bg-success);
+  border-radius: 10px;
   margin: 10px;
 }
 
@@ -58,4 +134,55 @@ body {
 .row {
   width: auto;
   height: auto;
+}
+
+button {
+  width: 140px;
+  height: 60px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border-radius: 15px;
+  color: var(--text-alpha);
+  transition: 300ms;
+  border: 0;
+  font-family: "Space Grotesk", sans-serif;
+}
+
+button.primary {
+  background-color: var(--primary);
+}
+
+button.primary:hover {
+  border-radius: 10px;
+  background-color: var(--primary-hover);
+}
+
+button.secondary {
+  background-color: var(--secondary);
+}
+
+button.secondary:hover {
+  border-radius: 10px;
+  background-color: var(--secondary-hover);
+}
+
+button.warning {
+  background-color: var(--warning);
+  border: 3px solid var(--bordering);
+}
+
+button.warning:hover {
+  border-radius: 10px;
+  background-color: var(--warning-hover);
+  border: 3px solid var(--bordering);
+}
+
+button.danger {
+  background-color: var(--danger);
+}
+
+button.danger:hover {
+  border-radius: 10px;
+  background-color: var(--danger-hover);
 }
