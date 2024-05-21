@@ -1,5 +1,5 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
-import { Agent } from '../../../../domain/agent/agent.model';
+import { Agent, Agents } from '../../../../domain/agent/agent.model';
 
 @Component({
   selector: 'app-carrosel',
@@ -7,7 +7,7 @@ import { Agent } from '../../../../domain/agent/agent.model';
   template: `
     <main>
       @if(agent) {
-      <div class="left options">
+      <div class="left options" (click)="leftOption()">
         <img src="assets/imgs/right-arrow.png" style="rotate: 180deg;" />
       </div>
       <div class="container">
@@ -63,4 +63,9 @@ import { Agent } from '../../../../domain/agent/agent.model';
 })
 export class CarroselComponent {
   @Input() agent!: Agent;
+  @Input() agents!: Agents;
+  positionCarrosel!: number;
+  leftOption() {
+    
+  }
 }

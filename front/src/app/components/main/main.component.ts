@@ -12,18 +12,21 @@ import { CarroselComponent } from './components/carrosel/carrosel.component';
     <div class="container">
       <header class="bg-head"><h1 class="text">Oie</h1></header>
 
-      <main class="bg-content">
+      <main class="bg-content" [style]="selectedAgent != undefined ? 
+      {backgroundImage: 'linear-gradient('+randomDeg+'deg, #'+selectedAgent.backgroundGradientColors[0]+', #'+ selectedAgent.backgroundGradientColors[1] +'
+        , #'+ selectedAgent.backgroundGradientColors[2] +'
+        , #'+ selectedAgent.backgroundGradientColors[3] +')'} : null">
         <aside class="card">
           @if(agents) {
           <app-aside
             [agents]="agents"
-            (selectedAgent)="selectedAgent = $event"
+            (selectedAgent)="selectingAgent($event)"
           />
           }
         </aside>
         <div class="content" style="color: white;">
           @if(selectedAgent) {
-          <app-carrosel [agent]="selectedAgent" />
+          <app-carrosel [agents]="agents" [agent]="selectedAgent" />
           }
         </div>
       </main>
@@ -61,13 +64,23 @@ import { CarroselComponent } from './components/carrosel/carrosel.component';
 })
 export class MainComponent implements OnInit {
   agents!: Agents;
-  selectedAgent?: any;
+  selectedAgent?: Agent;
+  randomDeg?: number;
 
   constructor(private mainService: MainService) {}
 
   public selectingAgent(agent: Agent) {
+    console.log(this.selectedAgent)
     this.selectedAgent = agent;
+    this.randomDeg = Math.floor(Math.random() * (360 - 0) + 0)
+    console.log(this.randomDeg)
   }
+
+  // style="background-image: linear-gradient('+randomDeg+'deg, #'+
+  //   selectedAgent.backgroundGradientColors[0]
+  // +', #'+ selectedAgent.backgroundGradientColors[1] +'
+  // , #'+ selectedAgent.backgroundGradientColors[2] +'
+  // , #'+ selectedAgent.backgroundGradientColors[3] +');"
 
   ngOnInit(): void {
     this.getAgents();
