@@ -1,46 +1,55 @@
 /* You can add global styles to this file, and also import other style files */
 
-@import url("https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300..700&display=swap");
+@font-face {
+  font-family: SpaceGrotesk;
+  src: url(assets/fonts/Space_Grotesk/SpaceGrotesk-VariableFont_wght.ttf);
+}
 
 :root {
-  --primary: #ffe457;
-  --primary-hover: #f7d83d;
+  --primary: #8958fd;
+  --primary-hover: transparent;
   --warning: #fab400;
   --warning-hover: #ffcd4d;
-  --danger: #d12424;
-  --danger-hover: #e04a4a;
-  --secondary: #2b0a56;
-  --secondary-hover: #3c1272;
+  --danger: #e93535;
+  --danger-hover: #ec4e4e;
+  --secondary: #111111;
+  --secondary-hover: transparent;
   --success: #27b114;
-  --bg-success: #51fc3ab0;
+  --bg-success: #73ff619d;
+  --bg-warning: #ffef619d;
+  --bg-danger: #ff61619d;
   --error: #7d1e00;
   --bg-alpha: #ffffff;
-  --bg-beta: #64646420;
+  --bg-beta: #d1d1d1b2;
   --text-alpha: #111111;
+  --text-hover: #131313;
   --text-delta: #494949a1;
-  --bordering: #2b0a56;
-  --disabled: #898989;
+  --bordering: #150824;
+  --disabled: #919191;
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --primary: #b73cff;
-    --primary-hover: #d48efd;
-    --warning: #fab400;
-    --warning-hover: #ffcd4d;
-    --danger: #c23e3e;
-    --danger-hover: #e93535;
-    --secondary: #fd6cd2;
-    --secondary-hover: #a31457;
+    --primary: #c155ff;
+    --primary-hover: transparent;
+    --warning: #ffe139;
+    --warning-hover: #ffe658;
+    --danger: #e93535;
+    --danger-hover: #ec4e4e;
+    --secondary: #ffffff;
+    --secondary-hover: transparent;
     --success: #64be58;
     --bg-success: #73ff619d;
+    --bg-warning: #ffef619d;
+    --bg-danger: #ff61619d;
     --error: #a24141;
     --bg-alpha: #111111;
     --bg-beta: #41414120;
     --text-alpha: #ffffff;
+    --text-hover: #131313;
     --text-delta: #b8b8b8a1;
-    --bordering: #686868;
-    --disabled: #898989;
+    --bordering: #24162c;
+    --disabled: #919191;
   }
 }
 
@@ -48,23 +57,6 @@
   margin: 0;
   padding: 0;
   color: var(--text-alpha);
-}
-
-.title {
-  font-size: 32px;
-  font-weight: bold;
-}
-.body {
-  font-size: 18px;
-}
-.bold {
-  font-weight: bold;
-}
-.small {
-  font-size: 14px;
-}
-.text-secondary {
-  color: var(--text-delta);
 }
 
 body {
@@ -102,7 +94,24 @@ h4,
 h5,
 h6 {
   color: var(--text-alpha);
-  font-family: "Space Grotesk", sans-serif;
+  font-family: SpaceGrotesk;
+}
+
+.title {
+  font-size: 32px;
+  font-weight: bold;
+}
+.body {
+  font-size: 18px;
+}
+.bold {
+  font-weight: bold;
+}
+.small {
+  font-size: 14px;
+}
+.text-secondary {
+  color: var(--text-delta);
 }
 
 .bg-head {
@@ -124,6 +133,16 @@ h6 {
   border-radius: 10px;
   margin: 10px;
 }
+.card-warning {
+  background-color: var(--bg-warning);
+  border-radius: 10px;
+  margin: 10px;
+}
+.card-danger {
+  background-color: var(--bg-danger);
+  border-radius: 10px;
+  margin: 10px;
+}
 
 .center {
   display: flex;
@@ -142,40 +161,44 @@ button {
   display: flex;
   justify-content: center;
   align-items: center;
-  border-radius: 15px;
+  border-radius: 10px;
   color: var(--text-alpha);
+  font-size: 18px;
+  font-weight: 600;
   transition: 300ms;
   border: 0;
-  font-family: "Space Grotesk", sans-serif;
+  font-family: SpaceGrotesk;
 }
 
 button.primary {
+  border: 3px solid var(--primary);
   background-color: var(--primary);
 }
 
 button.primary:hover {
-  border-radius: 10px;
+  color: var(--primary);
   background-color: var(--primary-hover);
 }
 
 button.secondary {
+  color: var(--bg-alpha);
+  border: 3px solid var(--secondary);
   background-color: var(--secondary);
 }
 
 button.secondary:hover {
-  border-radius: 10px;
+  color: var(--secondary);
   background-color: var(--secondary-hover);
 }
 
 button.warning {
+  color: var(--text-hover);
   background-color: var(--warning);
-  border: 3px solid var(--bordering);
 }
 
 button.warning:hover {
-  border-radius: 10px;
+  color: var(--text-hover);
   background-color: var(--warning-hover);
-  border: 3px solid var(--bordering);
 }
 
 button.danger {
@@ -183,6 +206,14 @@ button.danger {
 }
 
 button.danger:hover {
-  border-radius: 10px;
   background-color: var(--danger-hover);
+}
+
+button:disabled {
+  color: var(--text-delta);
+  background-color: var(--disabled);
+}
+button:disabled:hover {
+  color: var(--text-delta);
+  background-color: var(--disabled);
 }

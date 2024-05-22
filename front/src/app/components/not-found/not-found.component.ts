@@ -16,9 +16,7 @@ import { RouterLink } from '@angular/router';
         <h2 class="body">
           Page not found<br />Hit the button below to go back
         </h2>
-        <button class="primary" routerLink="/">
-          <h1 class="body">Back</h1>
-        </button>
+        <button class="primary" routerLink="/">Back</button>
       </main>
     </div>
   `,
