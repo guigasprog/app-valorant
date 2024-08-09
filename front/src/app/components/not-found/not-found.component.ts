@@ -6,68 +6,50 @@ import { RouterLink } from '@angular/router';
   standalone: true,
   imports: [RouterLink],
   template: `
-    <main class="bg-content">
-      <h2 class="title">404</h2>
-      <div class="background"><h1 class="text-secondary">404</h1></div>
-    </main>
-    <div class="card">
-      <header><h2 class="body bold">Error 404</h2></header>
-      <main>
-        <h2 class="body">
-          Page not found<br />Hit the button below to go back
-        </h2>
-        <button class="primary" routerLink="/">Back</button>
-      </main>
+    <div
+      style="width: 100%;height: 100%; overflow: hidden!important; position: relative"
+    >
+      <div
+        class="faixa center"
+        style="position: absolute; width: 110%; height: 25%; background-color: #f7c846;
+        left: -10%; top: 5%; rotate: -5deg;"
+      >
+        <h2 style="font-size: 11rem;">SORRY</h2>
+      </div>
+      <div
+        class="card card-3x4 card-yellow"
+        style="position: absolute; top: 30px; left: 30px; z-index: 5000; height: 210px; padding-bottom: 0"
+      >
+        <div class="content" style="overflow: hidden;">
+          <h1>Page Not Found</h1>
+          <p>
+            Requested page Not Found or undergoing maintenance, please wait, it
+            is recommended to return to the main menu by pressing the button
+            below!
+          </p>
+          <div class="card center" style="background-color: transparent;">
+            <button class="danger">Voltar</button>
+          </div>
+        </div>
+      </div>
+
+      <div
+        class="center"
+        style="width: 100%;height: 100%; position: absolute; z-index: 1000;"
+      >
+        <h2 style="font-size: 4rem; color: #f0f0f0; cursor: default">404</h2>
+      </div>
+      <div
+        class="center"
+        style="width: 100%;height: 100%; position: absolute; left: 20%; top: 20%"
+      >
+        <h2 style="font-size: 50rem; color: #f0f0f01c">404</h2>
+      </div>
     </div>
   `,
   styles: `
-  .card {
-    width: 30%;
-    height: 35%;
-    position: absolute;
-    top: 1%;
-    left: 0.5%;
-    header {
-        width: 100%;
-        height: 20%;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-    }
-    main {
-        width: 100%;
-        height: 80%;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        text-align: center;
-        flex-direction: column;
-        gap: 40px;
-    }
-
-  }
-  .bg-content {
-    overflow: hidden;
-    width: 100%;
-    height: 100%;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    position: relative;
-    cursor: default;
-    .background {
-        position: absolute;
-        font-size: 380px;
-        top: 6%;
-        left: 15%;
-        color: rgba(85, 85, 85, 0.8);
-        z-index: 0;
-    }
-    h2 {
-        font-size: 80px;
-        position: absolute;
-        z-index: 1;
-    }
-  }`,
+  `,
 })
 export class NotFoundComponent {}
+//font-size: 50rem; color: #f0f0f01c"
+//font-size: 2.5rem; color: #f0f0f0"

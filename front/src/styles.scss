@@ -1,62 +1,27 @@
-/* You can add global styles to this file, and also import other style files */
+@import url("https://fonts.googleapis.com/css2?family=Barlow:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=VT323&display=swap");
 
-@font-face {
-  font-family: SpaceGrotesk;
-  src: url(assets/fonts/Space_Grotesk/SpaceGrotesk-VariableFont_wght.ttf);
-}
-
+//COLORS
 :root {
-  --primary: #8958fd;
+  --primary: #f0f0f0;
   --primary-hover: transparent;
-  --warning: #fab400;
-  --warning-hover: #ffcd4d;
-  --danger: #e93535;
-  --danger-hover: #ec4e4e;
-  --secondary: #111111;
-  --secondary-hover: transparent;
-  --success: #27b114;
-  --bg-success: #73ff619d;
-  --bg-warning: #ffef619d;
-  --bg-danger: #ff61619d;
-  --error: #7d1e00;
-  --bg-alpha: #ffffff;
-  --bg-beta: #d1d1d1b2;
-  --text-alpha: #111111;
-  --text-hover: #131313;
-  --text-delta: #494949a1;
-  --bordering: #150824;
-  --disabled: #919191;
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --primary: #c155ff;
-    --primary-hover: transparent;
-    --warning: #ffe139;
-    --warning-hover: #ffe658;
-    --danger: #e93535;
-    --danger-hover: #ec4e4e;
-    --secondary: #ffffff;
-    --secondary-hover: transparent;
-    --success: #64be58;
-    --bg-success: #73ff619d;
-    --bg-warning: #ffef619d;
-    --bg-danger: #ff61619d;
-    --error: #a24141;
-    --bg-alpha: #111111;
-    --bg-beta: #41414120;
-    --text-alpha: #ffffff;
-    --text-hover: #131313;
-    --text-delta: #b8b8b8a1;
-    --bordering: #24162c;
-    --disabled: #919191;
-  }
+  --warning: #f7c846;
+  --warning-hover: #fcdc83;
+  --danger: #fc574e;
+  --danger-hover: #ff9a95;
+  --success: #8ae98d;
+  --success-hover: #b7fdb8;
+  --bg-alpha: #0e121a;
+  --bg-beta: #141820;
+  --text-alpha: #0e121a;
+  --text-delta: #f0f0f0;
+  --bordering: #3a3a3a;
+  --disabled: #f0f0f0d5;
+  --card: #00000018;
 }
 
 * {
   margin: 0;
   padding: 0;
-  color: var(--text-alpha);
 }
 
 body {
@@ -66,7 +31,7 @@ body {
 }
 
 ::-webkit-scrollbar {
-  width: 5px;
+  width: 6px;
 }
 
 /* Track */
@@ -93,55 +58,7 @@ h3,
 h4,
 h5,
 h6 {
-  color: var(--text-alpha);
-  font-family: SpaceGrotesk;
-}
-
-.title {
-  font-size: 32px;
-  font-weight: bold;
-}
-.body {
-  font-size: 18px;
-}
-.bold {
-  font-weight: bold;
-}
-.small {
-  font-size: 14px;
-}
-.text-secondary {
-  color: var(--text-delta);
-}
-
-.bg-head {
-  background-color: var(--bg-beta);
-}
-
-.bg-content {
-  background-color: var(--bg-alpha);
-}
-
-.card {
-  background-color: var(--bg-beta);
-  border-radius: 30px;
-  margin: 10px;
-}
-
-.card-success {
-  background-color: var(--bg-success);
-  border-radius: 10px;
-  margin: 10px;
-}
-.card-warning {
-  background-color: var(--bg-warning);
-  border-radius: 10px;
-  margin: 10px;
-}
-.card-danger {
-  background-color: var(--bg-danger);
-  border-radius: 10px;
-  margin: 10px;
+  font-family: "Barlow", sans-serif;
 }
 
 .center {
@@ -150,70 +67,159 @@ h6 {
   align-items: center;
 }
 
-.row {
-  width: auto;
-  height: auto;
+.container {
+  width: 90vw;
+  height: 100vh;
+  margin: auto;
 }
 
-button {
-  width: 140px;
-  height: 60px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  border-radius: 10px;
-  color: var(--text-alpha);
-  font-size: 18px;
+.mid-container {
+  width: 95vw;
+  height: 100vh;
+  margin: auto;
+}
+
+.full-container {
+  width: 100vw;
+  height: 100vh;
+  margin: auto;
+}
+
+h1 {
+  font-size: 0.9rem;
+  font-weight: 500;
+  font-style: normal;
+  margin-bottom: 10px;
+}
+
+h5 {
+  color: #191d27;
+}
+
+p {
+  font-size: 1rem;
   font-weight: 600;
-  transition: 300ms;
-  border: 0;
-  font-family: SpaceGrotesk;
+  font-style: normal;
 }
 
-button.primary {
-  border: 3px solid var(--primary);
-  background-color: var(--primary);
+li {
+  font-size: 1rem;
+  font-weight: 600;
+  font-style: normal;
+  font-family: "Barlow", sans-serif;
+  margin: 10px;
 }
 
-button.primary:hover {
-  color: var(--primary);
-  background-color: var(--primary-hover);
+.card {
+  padding: 20px;
+  border-radius: 30px;
+  overflow: hidden;
+  .content {
+    width: 100%;
+    height: 100%;
+    padding-right: 21px;
+    overflow-y: auto;
+    ul {
+      margin-left: 10px;
+    }
+  }
+  .card {
+    margin: 10px;
+    border-radius: 10px;
+    background-color: var(--card);
+  }
 }
 
-button.secondary {
-  color: var(--bg-alpha);
-  border: 3px solid var(--secondary);
-  background-color: var(--secondary);
+.card-aside {
+  width: 250px;
+  height: auto;
+  margin: 20px;
+  overflow: hidden;
 }
 
-button.secondary:hover {
-  color: var(--secondary);
-  background-color: var(--secondary-hover);
+.card-3x4 {
+  width: 200px;
+  height: 300px;
 }
 
-button.warning {
-  color: var(--text-hover);
+.card-5x4 {
+  width: 400px;
+  height: 300px;
+}
+
+.card-green {
+  background-color: var(--success);
+}
+
+.card-yellow {
   background-color: var(--warning);
 }
 
+.card-white {
+  background-color: var(--primary);
+}
+
+.card-black {
+  background-color: var(--bg-alpha) !important;
+  color: var(--primary);
+}
+
+button {
+  width: 130px;
+  height: 50px;
+  border-radius: 15px;
+  border: none;
+  font-size: 0.9rem;
+  font-weight: 600;
+  font-style: normal;
+  font-family: "Barlow", sans-serif;
+  cursor: pointer;
+}
+
+button.primary {
+  background-color: var(--primary);
+  border: 2px solid var(--primary);
+  transition: all 200ms;
+}
+
+button.primary:hover {
+  background-color: var(--primary-hover);
+  color: var(--text-delta);
+}
+
+button.success {
+  background-color: var(--success);
+  transition: all 200ms;
+}
+
+button.success:hover {
+  background-color: var(--success-hover);
+}
+
+button.warning {
+  background-color: var(--warning);
+  transition: all 200ms;
+}
+
 button.warning:hover {
-  color: var(--text-hover);
   background-color: var(--warning-hover);
 }
 
 button.danger {
   background-color: var(--danger);
+  transition: all 200ms;
 }
 
 button.danger:hover {
   background-color: var(--danger-hover);
 }
 
+button[disabled="disabled"],
 button:disabled {
-  color: var(--text-delta);
   background-color: var(--disabled);
 }
+
+button[disabled="disabled"]:hover,
 button:disabled:hover {
-  color: var(--text-delta);
   background-color: var(--disabled);
 }
