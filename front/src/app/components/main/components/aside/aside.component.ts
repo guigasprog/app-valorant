@@ -7,12 +7,74 @@ import { NgStyle } from '@angular/common';
   standalone: true,
   imports: [NgStyle],
   template: `
-    <div class="card card-aside" style="background-color: green;">
-      <div class="content"></div>
-    </div>
+    <main>
+      @for (agent of agents; track $index) { @if(agent.isPlayableCharacter) {
+      <div
+        class="row center characters"
+        style="background-image: linear-gradient(to right, #{{
+          agent.backgroundGradientColors[0]
+        }}, #{{ agent.backgroundGradientColors[1] }}
+        , #{{ agent.backgroundGradientColors[2] }}
+        , #{{ agent.backgroundGradientColors[3] }});"
+      >
+        <div class="icon">
+          <img src="{{ agent.displayIconSmall }}" alt="icon-agent" />
+        </div>
+        <div class="caracter">
+          <img src="{{ agent.background }}" />
+        </div>
+      </div>
+      } }
+    </main>
   `,
   styles: `
-
+  main {
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    overflow-y: scroll;
+    margin: 0 auto;
+    .characters {
+      margin: 10px;
+      display: flex;
+      width: 95%;
+      height: auto;
+      border-radius: 10px;
+      position: relative;
+      .icon {
+        width: 25%;
+        height: auto;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        background-color: white;
+        border-radius: 100%;
+        overflow: hidden;
+        margin-left: 10%;
+        img {
+          width: 100%;
+        }
+      }
+      .caracter {
+        width: 70%;
+        height: 80px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        overflow: hidden;
+        img {
+          width: 100%;
+          height: auto;
+        }
+      }
+      transition: 300ms;
+    }
+    .characters:hover {
+      scale: 1.05;
+    }
+  }
   `,
 })
-export class AsideComponent {}
+export class AsideComponent {
+  @Input() agents!: Agents;
+}

@@ -11,7 +11,7 @@ import { RouterLink } from '@angular/router';
     >
       <div
         class="faixa center"
-        style="position: absolute; width: 110%; height: 25%; background-color: #f7c846;
+        style="position: absolute; width: 110%; height: 25%; background-color: #d6ae3e;
         left: -10%; top: 5%; rotate: -5deg;"
       >
         <h2 style="font-size: 11rem;">SORRY</h2>
