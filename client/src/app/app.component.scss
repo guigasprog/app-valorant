@@ -1,0 +1,20 @@
+.content {
+  width: 100dvw;
+  height: 90dvh;
+  background-color: #ff4656;
+  position: relative;
+  overflow: hidden;
+}
+
+.content > * {
+  position: relative;
+  z-index: 1;
+}
+
+.loading {
+  width: 100dvw;
+  height: 100dvh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}

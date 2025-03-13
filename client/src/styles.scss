@@ -1,0 +1,59 @@
+/* You can add global styles to this file, and also import other style files */
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap');
+
+@font-face {
+  font-family: 'Druk Wide';
+  font-style: normal;
+  font-weight: normal;
+  src: local('Druk Wide Bold Bold'), url('../public/DrukWide.woff') format('woff');
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  scrollbar-width: thin;
+  scrollbar-color: #1f232675 transparent;
+}
+
+*::-webkit-scrollbar {
+  width: 12px;
+}
+
+*::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+*::-webkit-scrollbar-thumb {
+  background-color: #1F2326;
+  border-radius: 20px;
+}
+
+body {
+  background-color: #1F2326;
+}
+
+h1, h2, h3 {
+  font-family: 'Druk Wide', sans-serif;
+}
+
+h1 {
+  font-size: 60px;
+}
+
+h2 {
+  font-size: 48px;
+}
+
+h3 {
+  font-size: 24px;
+  color: #ff4656;
+}
+
+h5, p {
+  font-family: 'Montserrat', sans-serif;
+  color: #FFFFFF;
+}
+
+h5 {
+  font-weight: bold;
+}
