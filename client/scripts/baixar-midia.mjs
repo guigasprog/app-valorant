@@ -93,6 +93,9 @@ const jogaveis = mapas.filter((m) => m.tacticalDescription || m.assetPath.includ
 console.log(`Mapas: ${jogaveis.length}`);
 for (const m of jogaveis) {
   somar(await gravar(m.splash, 'mapas', m.uuid, SPLASH));
+  // A planta vista de cima. Vai maior que o splash porque é o que se fica
+  // olhando de perto na página do mapa, procurando onde fica cada callout.
+  somar(await gravar(m.displayIcon, 'minimapas', m.uuid, 900));
   process.stdout.write('.');
 }
 console.log('');

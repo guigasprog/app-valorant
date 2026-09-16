@@ -1,5 +1,6 @@
 import { ChangeDetectionStrategy, Component, computed, inject } from '@angular/core';
 import { DadosService } from '../services/dados.service';
+import { RouterLink } from '@angular/router';
 import { ReservaDirective } from '../component/reserva.directive';
 import { categoriaDe, iconeDaArma, type Arma } from '../models/valorant';
 
@@ -16,7 +17,7 @@ const ORDEM = [
 
 @Component({
   selector: 'app-armas',
-  imports: [ReservaDirective],
+  imports: [ReservaDirective, RouterLink],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <div class="envolve">
@@ -32,7 +33,8 @@ const ORDEM = [
 
           <ul class="grade">
             @for (arma of grupo.armas; track arma.uuid) {
-              <li class="card canto">
+              <li>
+                <a class="card canto" [routerLink]="['/armas', arma.uuid]">
                 <img
                   [src]="imagem(arma)"
                   [reserva]="arma.displayIcon"
@@ -49,6 +51,7 @@ const ORDEM = [
                     <p class="preco sem">—</p>
                   }
                 </div>
+                </a>
               </li>
             }
           </ul>

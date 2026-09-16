@@ -5,6 +5,8 @@ import { DadosService } from './services/dados.service';
 import { InicioPage } from './page/inicio.page';
 import { AgentesPage } from './page/agentes.page';
 import { AgentePage } from './page/agente.page';
+import { MapaPage } from './page/mapa.page';
+import { ArmaPage } from './page/arma.page';
 import { MapasPage } from './page/mapas.page';
 import { ArmasPage } from './page/armas.page';
 import { HeaderComponent } from './component/header.component';
@@ -63,6 +65,12 @@ const MAPAS: Mapa[] = [
     splash: 'ascent-splash.png',
     tacticalDescription: 'A/B',
     assetPath: '/Game/Maps/Ascent/Ascent_PrimaryAsset',
+    callouts: [
+      { regionName: 'Árvore', superRegionName: 'A' },
+      { regionName: 'Mercado', superRegionName: 'Meio' },
+      // Vem como fragmento de frase na API — vira título de grupo aqui.
+      { regionName: 'Pátio', superRegionName: 'no Lado Atacante' },
+    ],
   },
   {
     uuid: 'm2',
@@ -72,6 +80,8 @@ const MAPAS: Mapa[] = [
     splash: 'district-splash.png',
     tacticalDescription: null,
     assetPath: '/Game/Maps/HURM_Alley/HURM_Alley_PrimaryAsset',
+    // Os mapas de Duelo por Equipes não têm callouts na API.
+    callouts: null,
   },
 ];
 
@@ -81,6 +91,22 @@ const ARMAS: Arma[] = [
     displayName: 'Vandal',
     category: 'EEquippableCategory::Rifle',
     displayIcon: 'vandal.png',
+    weaponStats: {
+      fireRate: 9.75,
+      magazineSize: 25,
+      runSpeedMultiplier: 5.4,
+      equipTimeSeconds: 1,
+      reloadTimeSeconds: 2.5,
+      firstBulletAccuracy: 0,
+      shotgunPelletCount: 0,
+      wallPenetration: 'EWallPenetrationDisplayType::Medium',
+      feature: null,
+      fireMode: null,
+      altFireType: 'EWeaponAltFireDisplayType::ADS',
+      damageRanges: [
+        { rangeStartMeters: 0, rangeEndMeters: 50, headDamage: 160, bodyDamage: 40, legDamage: 34 },
+      ],
+    },
     shopData: { cost: 2900, categoryText: 'Rifles' },
   },
   // A faca não é comprada: shopData nulo.
@@ -89,6 +115,7 @@ const ARMAS: Arma[] = [
     displayName: 'Confronto',
     category: 'EEquippableCategory::Melee',
     displayIcon: 'faca.png',
+    weaponStats: null,
     shopData: null,
   },
 ];
@@ -104,6 +131,8 @@ function servicoFalso() {
     carregar: () => {},
     sortearFundo: () => {},
     agentePorUuid: (uuid: string) => AGENTES.find((a) => a.uuid === uuid),
+    mapaPorUuid: (uuid: string) => MAPAS.find((m) => m.uuid === uuid),
+    armaPorUuid: (uuid: string) => ARMAS.find((a) => a.uuid === uuid),
   };
 }
 
@@ -148,6 +177,7 @@ describe('Regras de leitura da API', () => {
       splash: 'range.png',
       tacticalDescription: null,
       assetPath: '/Game/Maps/Poveglia/Range_PrimaryAsset',
+      callouts: null,
     };
     expect(modoDoMapa(treino)).toBeNull();
   });
@@ -288,6 +318,85 @@ describe('Armas', () => {
       (h) => h.textContent?.trim(),
     );
     expect(titulos).toEqual(['Rifles', 'Corpo a corpo']);
+  });
+});
+
+describe('Página do mapa', () => {
+  async function abrir(uuid: string) {
+    await TestBed.configureTestingModule({
+      imports: [MapaPage],
+      providers: [provideRouter([]), { provide: DadosService, useValue: servicoFalso() }],
+    }).compileComponents();
+
+    const fixture = TestBed.createComponent(MapaPage);
+    fixture.componentRef.setInput('uuid', uuid);
+    fixture.detectChanges();
+    return fixture;
+  }
+
+  it('agrupa os callouts por sítio e tira a preposição do título', async () => {
+    const el = (await abrir('m1')).nativeElement as HTMLElement;
+
+    const titulos = [...el.querySelectorAll('.regiao h3')].map((h) => h.textContent?.trim());
+    expect(titulos).toContain('A');
+    expect(titulos).toContain('Meio');
+    // "no Lado Atacante" vira "Lado Atacante" — como título, a preposição sobra.
+    expect(titulos).toContain('Lado Atacante');
+    expect(titulos).not.toContain('no Lado Atacante');
+    expect(el.textContent).toContain('Árvore');
+  });
+
+  it('esconde a seção de callouts no mapa que não tem', async () => {
+    const el = (await abrir('m2')).nativeElement as HTMLElement;
+
+    expect(el.textContent).toContain('District');
+    expect(el.querySelector('.callouts')).toBeNull();
+  });
+
+  it('avisa em vez de quebrar quando o uuid não existe', async () => {
+    const el = (await abrir('nada')).nativeElement as HTMLElement;
+    expect(el.textContent).toContain('Mapa não encontrado');
+  });
+});
+
+describe('Página da arma', () => {
+  async function abrir(uuid: string) {
+    await TestBed.configureTestingModule({
+      imports: [ArmaPage],
+      providers: [provideRouter([]), { provide: DadosService, useValue: servicoFalso() }],
+    }).compileComponents();
+
+    const fixture = TestBed.createComponent(ArmaPage);
+    fixture.componentRef.setInput('uuid', uuid);
+    fixture.detectChanges();
+    return fixture;
+  }
+
+  it('monta a tabela de dano por distância', async () => {
+    const el = (await abrir('w1')).nativeElement as HTMLElement;
+
+    const linha = el.querySelector('tbody tr');
+    expect(linha?.querySelector('th')?.textContent).toContain('0–50 m');
+    const celulas = [...(linha?.querySelectorAll('td') ?? [])].map((c) => c.textContent?.trim());
+    expect(celulas).toEqual(['160', '40', '34']);
+  });
+
+  it('traduz os enums internos do jogo na ficha', async () => {
+    const el = (await abrir('w1')).nativeElement as HTMLElement;
+
+    // EWallPenetrationDisplayType::Medium → Média
+    expect(el.textContent).toContain('Média');
+    // EWeaponAltFireDisplayType::ADS → Mira (ADS)
+    expect(el.textContent).toContain('Mira (ADS)');
+    expect(el.textContent).not.toContain('EWallPenetration');
+  });
+
+  it('não inventa ficha para a arma sem estatísticas', async () => {
+    const el = (await abrir('w2')).nativeElement as HTMLElement;
+
+    expect(el.textContent).toContain('Confronto');
+    expect(el.textContent).toContain('Não é comprada');
+    expect(el.querySelector('table')).toBeNull();
   });
 });
 

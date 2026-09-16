@@ -31,9 +31,19 @@ export const routes: Routes = [
     loadComponent: () => import('./page/mapas.page').then((m) => m.MapasPage),
   },
   {
+    path: 'mapas/:uuid',
+    title: 'Mapa — VALORANT',
+    loadComponent: () => import('./page/mapa.page').then((m) => m.MapaPage),
+  },
+  {
     path: 'armas',
     title: 'Armas — VALORANT',
     loadComponent: () => import('./page/armas.page').then((m) => m.ArmasPage),
+  },
+  {
+    path: 'armas/:uuid',
+    title: 'Arma — VALORANT',
+    loadComponent: () => import('./page/arma.page').then((m) => m.ArmaPage),
   },
   // A rota antiga, em inglês, continua respondendo: era o único link que
   // existia no ar, e quebrá-lo não traria nada.

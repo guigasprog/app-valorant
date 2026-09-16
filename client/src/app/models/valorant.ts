@@ -75,15 +75,47 @@ export function habilidadesOrdenadas(agente: Agente): Habilidade[] {
     });
 }
 
+/** Um ponto nomeado do mapa — o vocabulário que os times usam para se falar. */
+export interface Callout {
+  regionName: string;
+  superRegionName: string;
+}
+
 export interface Mapa {
   uuid: string;
   displayName: string;
   coordinates: string | null;
+  /** O minimapa visto de cima, com a planta do mapa. */
   displayIcon: string | null;
   splash: string;
   /** "A/B/C" nos mapas de partida padrão; nulo em todo o resto. */
   tacticalDescription: string | null;
   assetPath: string;
+  /** 16 dos 26 mapas têm; os de Duelo por Equipes não. */
+  callouts: Callout[] | null;
+}
+
+/**
+ * Agrupa os callouts pelo sítio a que pertencem.
+ *
+ * O `superRegionName` vem em português já pronto, mas alguns chegam como
+ * fragmento de frase — "no Lado Atacante" — porque no jogo aparecem depois do
+ * nome da região. Como aqui viram título de grupo, a preposição inicial sai.
+ */
+export function calloutsPorRegiao(mapa: Mapa): { regiao: string; nomes: string[] }[] {
+  const grupos = new Map<string, string[]>();
+
+  for (const c of mapa.callouts ?? []) {
+    const regiao = c.superRegionName.replace(/^(no|na|em)\s+/i, '');
+    const lista = grupos.get(regiao);
+    if (lista) lista.push(c.regionName);
+    else grupos.set(regiao, [c.regionName]);
+  }
+
+  return [...grupos.entries()].map(([regiao, nomes]) => ({
+    regiao,
+    nomes: nomes.sort((a, b) => a.localeCompare(b, 'pt-BR')),
+  }));
 }
 
 export type ModoMapa = 'padrao' | 'duelo';
@@ -113,15 +145,69 @@ export function modoDoMapa(mapa: Mapa): ModoMapa | null {
   return null;
 }
 
+/** Uma faixa de distância e o dano que a arma causa nela. */
+export interface FaixaDeDano {
+  rangeStartMeters: number;
+  rangeEndMeters: number;
+  headDamage: number;
+  bodyDamage: number;
+  legDamage: number;
+}
+
+export interface EstatisticasArma {
+  fireRate: number;
+  magazineSize: number;
+  runSpeedMultiplier: number;
+  equipTimeSeconds: number;
+  reloadTimeSeconds: number;
+  firstBulletAccuracy: number;
+  shotgunPelletCount: number;
+  wallPenetration: string | null;
+  feature: string | null;
+  fireMode: string | null;
+  altFireType: string | null;
+  damageRanges: FaixaDeDano[];
+}
+
 export interface Arma {
   uuid: string;
   displayName: string;
   category: string;
   displayIcon: string;
+  /** A faca não tem: não é comprada nem tem tabela de dano por distância. */
+  weaponStats: EstatisticasArma | null;
   shopData: {
     cost: number;
     categoryText: string;
   } | null;
+}
+
+/**
+ * Os enums internos do jogo, que a API entrega crus
+ * ("EWallPenetrationDisplayType::High").
+ *
+ * O `?? cru` no fim é de propósito: se a Riot introduzir um valor novo, ele
+ * aparece com o nome interno em vez de sumir da tela — feio, mas visível, que é
+ * o que faz alguém vir consertar.
+ */
+const TRADUCAO: Record<string, string> = {
+  High: 'Alta',
+  Medium: 'Média',
+  Low: 'Baixa',
+  SemiAutomatic: 'Semiautomática',
+  FullyAutomatic: 'Automática',
+  ROFIncrease: 'Cadência crescente',
+  Silenced: 'Silenciada',
+  DualZoom: 'Zoom duplo',
+  ADS: 'Mira (ADS)',
+  AirBurst: 'Tiro aéreo',
+  Shotgun: 'Modo escopeta',
+};
+
+export function traduzirEnum(valor: string | null): string | null {
+  if (!valor) return null;
+  const cru = valor.split('::').pop() ?? valor;
+  return TRADUCAO[cru] ?? cru;
 }
 
 /**
@@ -153,6 +239,10 @@ export function iconeDaHabilidade(agente: Agente, habilidade: Habilidade): strin
 
 export function splashDe(mapa: Mapa): string {
   return `${MIDIA}/mapas/${mapa.uuid}.webp`;
+}
+
+export function minimapaDe(mapa: Mapa): string {
+  return `${MIDIA}/minimapas/${mapa.uuid}.webp`;
 }
 
 export function iconeDaArma(arma: Arma): string {

@@ -1,5 +1,6 @@
 import { ChangeDetectionStrategy, Component, computed, inject } from '@angular/core';
 import { DadosService } from '../services/dados.service';
+import { RouterLink } from '@angular/router';
 import { ReservaDirective } from '../component/reserva.directive';
 import { modoDoMapa, NOME_MODO, splashDe, type Mapa, type ModoMapa } from '../models/valorant';
 
@@ -12,7 +13,7 @@ import { modoDoMapa, NOME_MODO, splashDe, type Mapa, type ModoMapa } from '../mo
  */
 @Component({
   selector: 'app-mapas',
-  imports: [ReservaDirective],
+  imports: [ReservaDirective, RouterLink],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <div class="envolve">
@@ -28,7 +29,8 @@ import { modoDoMapa, NOME_MODO, splashDe, type Mapa, type ModoMapa } from '../mo
 
           <ul class="grade">
             @for (mapa of grupo.mapas; track mapa.uuid) {
-              <li class="card canto">
+              <li>
+                <a class="card canto" [routerLink]="['/mapas', mapa.uuid]">
                 <img
                   class="splash"
                   [src]="imagem(mapa)"
@@ -43,6 +45,7 @@ import { modoDoMapa, NOME_MODO, splashDe, type Mapa, type ModoMapa } from '../mo
                     <p class="sitios">{{ mapa.tacticalDescription }}</p>
                   }
                 </div>
+                </a>
               </li>
             }
           </ul>
@@ -92,6 +95,7 @@ import { modoDoMapa, NOME_MODO, splashDe, type Mapa, type ModoMapa } from '../mo
     }
 
     .card {
+      display: block;
       position: relative;
       overflow: hidden;
       border: 1px solid var(--borda);

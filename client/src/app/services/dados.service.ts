@@ -75,6 +75,14 @@ export class DadosService {
     return this.agentes().find((a) => a.uuid === uuid);
   }
 
+  mapaPorUuid(uuid: string): Mapa | undefined {
+    return this.mapas().find((m) => m.uuid === uuid);
+  }
+
+  armaPorUuid(uuid: string): Arma | undefined {
+    return this.armas().find((a) => a.uuid === uuid);
+  }
+
   /** Troca o fundo. Chamado a cada navegação, para a tela nunca repetir. */
   sortearFundo(candidatos: Mapa[] = this.mapas()): void {
     const comSplash = candidatos.filter((m) => m.splash);
