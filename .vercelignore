@@ -1,0 +1,8 @@
+# Um `vercel deploy` pela linha de comando envia o diretório inteiro, e sem esta
+# lista ele empacota node_modules e dist junto — 183 MB, acima do limite de 100
+# MB por arquivo/upload, e o deploy falha. O build de verdade acontece na Vercel,
+# a partir do clone do GitHub: nada daqui precisa viajar.
+node_modules
+client/node_modules
+client/dist
+client/.angular
