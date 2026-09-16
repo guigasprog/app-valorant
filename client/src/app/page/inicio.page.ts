@@ -140,19 +140,21 @@ export class InicioPage {
       nome: 'Agentes',
       rota: '/agentes',
       descricao: 'Cada um com sua função e as quatro habilidades.',
-      quantos: () => this.dados.agentes().length,
+      quantos: () => `${this.dados.agentes().length}`,
     },
     {
       nome: 'Mapas',
       rota: '/mapas',
       descricao: 'Os campos de batalha jogáveis, sem as salas de treino.',
-      quantos: () => this.dados.mapas().length,
+      quantos: () => `${this.dados.mapas().length}`,
     },
     {
       nome: 'Armas',
       rota: '/armas',
       descricao: 'O arsenal inteiro, separado por categoria e com o preço.',
-      quantos: () => this.dados.armas().length,
+      // Um traço enquanto não chega, e não um zero: as armas vêm num pedido
+      // separado e "0 armas" seria uma informação errada, não uma pendente.
+      quantos: () => (this.dados.estadoArmas() === 'pronto' ? `${this.dados.armas().length}` : '—'),
     },
   ];
 }

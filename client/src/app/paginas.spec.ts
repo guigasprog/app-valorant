@@ -157,19 +157,28 @@ const ARMAS: Arma[] = [
 ];
 
 function servicoFalso() {
+  // As listas ficam em locais para as buscas lerem o SINAL, e não o array
+  // original. É o que o serviço real faz — e sem isso a dublê acharia uma arma
+  // que, de verdade, ainda não chegou.
+  const agentes = signal(AGENTES);
+  const mapas = signal(MAPAS);
+  const armas = signal(ARMAS);
+
   return {
+    agentes,
+    mapas,
+    armas,
+    agentePorUuid: (uuid: string) => agentes().find((a) => a.uuid === uuid),
+    mapaPorUuid: (uuid: string) => mapas().find((m) => m.uuid === uuid),
+    armaPorUuid: (uuid: string) => armas().find((a) => a.uuid === uuid),
     estado: signal<'carregando' | 'pronto' | 'erro'>('pronto'),
-    agentes: signal(AGENTES),
-    mapas: signal(MAPAS),
-    armas: signal(ARMAS),
     tiers: signal(new Map([['t1', { uuid: 't1', displayName: 'Edição Premium', highlightColor: 'd1548dff', displayIcon: 't.png' }]])),
     mapaDeFundo: signal<Mapa | null>(MAPAS[0]),
     pronto: signal(true),
+    estadoArmas: signal<'carregando' | 'pronto' | 'erro'>('pronto'),
     carregar: () => {},
+    carregarArmas: () => {},
     sortearFundo: () => {},
-    agentePorUuid: (uuid: string) => AGENTES.find((a) => a.uuid === uuid),
-    mapaPorUuid: (uuid: string) => MAPAS.find((m) => m.uuid === uuid),
-    armaPorUuid: (uuid: string) => ARMAS.find((a) => a.uuid === uuid),
   };
 }
 
@@ -466,6 +475,28 @@ describe('Página da arma', () => {
     // EWeaponAltFireDisplayType::ADS → Mira (ADS)
     expect(el.textContent).toContain('Mira (ADS)');
     expect(el.textContent).not.toContain('EWallPenetration');
+  });
+
+  it('diz que está carregando em vez de "não encontrada" enquanto o arsenal vem', async () => {
+    const servico = servicoFalso();
+    // É o estado real de quem abre o link direto: o pedido de 3,44 MB ainda em
+    // voo, então a lista está vazia.
+    servico.estadoArmas.set('carregando');
+    servico.armas.set([]);
+
+    await TestBed.configureTestingModule({
+      imports: [ArmaPage],
+      providers: [provideRouter([]), { provide: DadosService, useValue: servico }],
+    }).compileComponents();
+
+    const fixture = TestBed.createComponent(ArmaPage);
+    // Um uuid que existe: o que falta é o pedido das armas, não a arma.
+    fixture.componentRef.setInput('uuid', 'w1');
+    fixture.detectChanges();
+
+    const texto = (fixture.nativeElement as HTMLElement).textContent ?? '';
+    expect(texto).toContain('Carregando');
+    expect(texto).not.toContain('não encontrada');
   });
 
   it('não inventa ficha para a arma sem estatísticas', async () => {

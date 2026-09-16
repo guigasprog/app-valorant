@@ -38,9 +38,23 @@ export class DadosService {
   readonly estado = signal<Estado>('carregando');
   readonly agentes = signal<Agente[]>([]);
   readonly mapas = signal<Mapa[]>([]);
-  readonly armas = signal<Arma[]>([]);
   /** Cinco edições (Deluxe, Premium, Ultra…), cada uma com sua cor. */
   readonly tiers = signal<Map<string, Tier>>(new Map());
+
+  /**
+   * As armas têm estado próprio porque têm peso próprio.
+   *
+   * O endpoint devolve 3,44 MB: as 1405 skins do jogo vêm embutidas na mesma
+   * resposta dos 20 nomes e preços, e não há como pedir sem elas. Junto no
+   * forkJoin, a splash segurava a tela até esse download terminar — inclusive
+   * para quem só ia olhar os agentes e sair.
+   *
+   * Agora o pedido sai junto, mas não bloqueia: a tela abre com agentes e
+   * mapas, e as armas chegam quando chegarem. Quem for direto para /armas vê
+   * um aviso de carregando em vez de uma lista vazia.
+   */
+  readonly estadoArmas = signal<Estado>('carregando');
+  readonly armas = signal<Arma[]>([]);
 
   /** Um mapa sorteado serve de fundo para a tela inteira. */
   readonly mapaDeFundo = signal<Mapa | null>(null);
@@ -49,16 +63,16 @@ export class DadosService {
 
   carregar(): void {
     this.estado.set('carregando');
+    this.carregarArmas();
 
     forkJoin({
       agentes: this.http.get<Resposta<Agente[]>>(
         `${this.base}/agents?isPlayableCharacter=true&language=pt-BR`,
       ),
       mapas: this.http.get<Resposta<Mapa[]>>(`${this.base}/maps?language=pt-BR`),
-      armas: this.http.get<Resposta<Arma[]>>(`${this.base}/weapons?language=pt-BR`),
       tiers: this.http.get<Resposta<Tier[]>>(`${this.base}/contenttiers?language=pt-BR`),
     }).subscribe({
-      next: ({ agentes, mapas, armas, tiers }) => {
+      next: ({ agentes, mapas, tiers }) => {
         // Ordem alfabética, e não por `releaseDate`: a API devolve
         // "1970-01-01" para praticamente todo agente, então ordenar por data
         // era uma comparação entre iguais que não ordenava nada.
@@ -73,7 +87,6 @@ export class DadosService {
         this.mapas.set(jogaveis);
         this.sortearFundo(jogaveis);
 
-        this.armas.set(armas.data);
         this.tiers.set(new Map(tiers.data.map((t) => [t.uuid, t])));
         this.estado.set('pronto');
       },
@@ -84,6 +97,19 @@ export class DadosService {
   /** Um agente pelo uuid da rota, ou `undefined` enquanto os dados não chegaram. */
   agentePorUuid(uuid: string): Agente | undefined {
     return this.agentes().find((a) => a.uuid === uuid);
+  }
+
+  /** Separado de `carregar` para o botão de "tentar de novo" poder repetir só isto. */
+  carregarArmas(): void {
+    this.estadoArmas.set('carregando');
+
+    this.http.get<Resposta<Arma[]>>(`${this.base}/weapons?language=pt-BR`).subscribe({
+      next: ({ data }) => {
+        this.armas.set(data);
+        this.estadoArmas.set('pronto');
+      },
+      error: () => this.estadoArmas.set('erro'),
+    });
   }
 
   mapaPorUuid(uuid: string): Mapa | undefined {

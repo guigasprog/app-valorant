@@ -23,6 +23,17 @@ const ORDEM = [
     <div class="envolve">
       <h1 class="vazado topo">Armas</h1>
 
+      <!-- As armas vêm num pedido à parte, de 3,44 MB: quem chega aqui antes
+           dele terminar precisa saber que está vindo, e não achar que acabou. -->
+      @if (dados.estadoArmas() === 'carregando') {
+        <p class="estado">Carregando o arsenal…</p>
+      } @else if (dados.estadoArmas() === 'erro') {
+        <p class="estado">
+          Não deu para carregar as armas.
+          <button type="button" (click)="dados.carregarArmas()">Tentar de novo</button>
+        </p>
+      }
+
       @for (grupo of grupos(); track grupo.nome) {
         <section class="grupo">
           <div class="cabeca">
@@ -67,6 +78,17 @@ const ORDEM = [
 
     .grupo {
       margin-bottom: 2.75rem;
+    }
+
+    .estado {
+      padding-block: 3rem;
+      color: var(--cinza);
+    }
+
+    .estado button {
+      margin-left: 0.5rem;
+      color: var(--osso);
+      border-bottom: 1px solid var(--vermelho);
     }
 
     .cabeca {
@@ -156,7 +178,7 @@ const ORDEM = [
   `,
 })
 export class ArmasPage {
-  private readonly dados = inject(DadosService);
+  readonly dados = inject(DadosService);
 
   imagem = (a: Arma) => iconeDaArma(a);
 

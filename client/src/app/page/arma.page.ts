@@ -210,6 +210,13 @@ import {
           }
         }
       </div>
+    } @else if (dados.estadoArmas() !== 'pronto') {
+      <!-- Sem esta distinção, quem abrisse o link de uma arma direto veria
+           "não encontrada" só porque o pedido de 3,44 MB ainda estava em voo. -->
+      <div class="envolve ausente">
+        <h1 class="vazado">Carregando…</h1>
+        <p>O arsenal vem num pedido à parte, e ainda está a caminho.</p>
+      </div>
     } @else {
       <div class="envolve ausente">
         <h1 class="vazado">Arma não encontrada</h1>
@@ -566,6 +573,11 @@ import {
       font-size: var(--t-titulo);
     }
 
+    .ausente p {
+      margin-top: 1rem;
+      color: var(--cinza);
+    }
+
     .voltar {
       --cor-canto: rgba(0, 0, 0, 0.45);
 
@@ -584,7 +596,7 @@ import {
 export class ArmaPage {
   readonly uuid = input.required<string>();
 
-  private readonly dados = inject(DadosService);
+  readonly dados = inject(DadosService);
 
   readonly arma = computed(() => this.dados.armaPorUuid(this.uuid()));
 
