@@ -52,8 +52,15 @@ descarta o alfa e deixa a opacidade para o CSS.
 
 ## Publicação
 
-Vercel, com _Root Directory_ `client`. O `vercel.json` já traz o build, a pasta
-de saída e — o que importa — o rewrite de todas as rotas para `index.html`.
+Vercel, ligada a este repositório: cada push na `main` publica.
+
+O `vercel.json` fica na **raiz**, e não em `client/`, de propósito. Ele podia
+morar lá dentro, com o _Root Directory_ do projeto apontando para `client` — mas
+aí metade da configuração ficaria num painel que não está versionado, e clonar o
+repositório não bastaria para publicá-lo. Com tudo na raiz, o repositório
+descreve o próprio deploy: instala e constrói dentro de `client`, serve
+`client/dist/client/browser`, e — o que mais importa — reescreve todas as rotas
+para `index.html`.
 
 Isso é o que conserta o defeito antigo: no GitHub Pages, abrir
 `/agents` direto ou dar F5 na rota devolvia **404**, porque Pages não faz
