@@ -1,59 +1,166 @@
-/* You can add global styles to this file, and also import other style files */
-@import url('https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;700&display=swap');
 
+/*
+ * A Druk Wide é a tipografia do jogo. Só existe o peso bold neste arquivo, e é
+ * o suficiente: ela só aparece em título.
+ */
 @font-face {
   font-family: 'Druk Wide';
   font-style: normal;
-  font-weight: normal;
-  src: local('Druk Wide Bold Bold'), url('../public/DrukWide.woff') format('woff');
+  font-weight: 700;
+  font-display: swap;
+  src: url('/DrukWide.woff') format('woff');
 }
 
-* {
+:root {
+  /* A paleta oficial do VALORANT. O azul-quase-preto é o fundo de tudo; o
+     vermelho é acento, nunca área. */
+  --noite: #0f1923;
+  --noite-alta: #1f2326;
+  --noite-card: #202a33;
+  --vermelho: #ff4655;
+  --vermelho-claro: #ff7a85;
+  --osso: #ece8e1;
+  --cinza: #8b9199;
+  --borda: #2f3b45;
+
+  /* Tipografia fluida: o mesmo token serve do celular ao monitor grande, sem
+     uma media query por tamanho de texto. */
+  --t-titulao: clamp(2.5rem, 9vw, 6rem);
+  --t-titulo: clamp(1.75rem, 4.5vw, 3rem);
+  --t-secao: clamp(1.15rem, 2.4vw, 1.6rem);
+  --t-corpo: clamp(0.92rem, 1.1vw, 1rem);
+
+  color-scheme: dark;
+}
+
+*,
+*::before,
+*::after {
   margin: 0;
   padding: 0;
-  scrollbar-width: thin;
-  scrollbar-color: #1f232675 transparent;
+  box-sizing: border-box;
 }
 
-*::-webkit-scrollbar {
-  width: 12px;
-}
-
-*::-webkit-scrollbar-track {
-  background: transparent;
-}
-
-*::-webkit-scrollbar-thumb {
-  background-color: #1F2326;
-  border-radius: 20px;
+html {
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
 }
 
 body {
-  background-color: #1F2326;
+  /* Antes era `width: 100vw; height: 100vh`. Em qualquer navegador com barra de
+     rolagem visível, 100vw é mais largo que a área útil e o site ganhava uma
+     rolagem horizontal que ninguém pediu. */
+  min-height: 100dvh;
+  background-color: var(--noite);
+  color: var(--osso);
+  font-family: 'Montserrat', system-ui, sans-serif;
+  font-size: var(--t-corpo);
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
 }
 
-h1, h2, h3 {
-  font-family: 'Druk Wide', sans-serif;
+h1,
+h2,
+h3 {
+  font-family: 'Druk Wide', 'Montserrat', sans-serif;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+  line-height: 0.95;
+  text-transform: uppercase;
 }
 
 h1 {
-  font-size: 60px;
+  font-size: var(--t-titulo);
 }
-
 h2 {
-  font-size: 48px;
+  font-size: var(--t-secao);
 }
 
-h3 {
-  font-size: 24px;
-  color: #ff4656;
+a {
+  color: inherit;
+  text-decoration: none;
 }
 
-h5, p {
-  font-family: 'Montserrat', sans-serif;
-  color: #FFFFFF;
+img {
+  max-width: 100%;
+  display: block;
 }
 
-h5 {
-  font-weight: bold;
+button {
+  font: inherit;
+  color: inherit;
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+
+::selection {
+  background: var(--vermelho);
+  color: var(--noite);
+}
+
+/* ═══════════════════ Utilitários ═══════════════════ */
+
+/*
+ * Texto vazado, a assinatura da marca. Ficava espalhado em `style=` por todo
+ * template; virou classe porque aparece em cinco lugares e o dia que o traço
+ * mudar de espessura é um lugar só para mexer.
+ */
+.vazado {
+  color: transparent;
+  -webkit-text-stroke: 1px var(--osso);
+}
+
+.vazado-vermelho {
+  color: transparent;
+  -webkit-text-stroke: 1px var(--vermelho);
+}
+
+/* O canto cortado do VALORANT. */
+.canto {
+  clip-path: polygon(0 0, 100% 0, 100% calc(100% - 14px), calc(100% - 14px) 100%, 0 100%);
+}
+
+.envolve {
+  width: 100%;
+  max-width: 82rem;
+  margin-inline: auto;
+  padding-inline: clamp(1rem, 4vw, 2.5rem);
+}
+
+/* ═══════════════════ Foco e movimento ═══════════════════ */
+
+:where(a, button, input):focus-visible {
+  outline: 2px solid var(--vermelho);
+  outline-offset: 3px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* ═══════════════════ Barra de rolagem ═══════════════════ */
+
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--borda) transparent;
+}
+
+*::-webkit-scrollbar {
+  width: 10px;
+  height: 8px;
+}
+*::-webkit-scrollbar-track {
+  background: transparent;
+}
+*::-webkit-scrollbar-thumb {
+  background-color: var(--borda);
+  border-radius: 8px;
 }

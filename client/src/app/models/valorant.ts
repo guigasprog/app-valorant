@@ -1,0 +1,133 @@
+/**
+ * O recorte da valorant-api.com que este app realmente usa.
+ *
+ * Só os campos consumidos, e não o retorno inteiro: a resposta de um agente
+ * tem mais de vinte campos, e declarar os vinte cria a ilusão de que mexer em
+ * qualquer um deles é seguro. O que está aqui é o contrato que a tela depende.
+ */
+
+export interface Habilidade {
+  slot: string;
+  displayName: string;
+  description: string;
+  /** Passivas costumam vir sem ícone — por isso pode ser nulo. */
+  displayIcon: string | null;
+}
+
+export interface Funcao {
+  uuid: string;
+  displayName: string;
+  description: string;
+  displayIcon: string;
+}
+
+export interface Agente {
+  uuid: string;
+  displayName: string;
+  description: string;
+  displayIcon: string;
+  bustPortrait: string | null;
+  fullPortrait: string | null;
+  background: string | null;
+  /**
+   * Duas a quatro cores em hex de 8 dígitos, COM alfa no fim ("371c5cff").
+   * CSS entende `#RRGGBBAA`, então basta prefixar — mas o alfa final costuma
+   * ser `00` na última parada, o que apagaria o gradiente. Ver `gradienteDe`.
+   */
+  backgroundGradientColors: string[];
+  role: Funcao;
+  abilities: Habilidade[];
+}
+
+export interface Mapa {
+  uuid: string;
+  displayName: string;
+  coordinates: string | null;
+  displayIcon: string | null;
+  splash: string;
+  /** "A/B/C" nos mapas de partida padrão; nulo em todo o resto. */
+  tacticalDescription: string | null;
+  assetPath: string;
+}
+
+export type ModoMapa = 'padrao' | 'duelo';
+
+export const NOME_MODO: Record<ModoMapa, string> = {
+  padrao: 'Partida padrão',
+  duelo: 'Duelo por Equipes',
+};
+
+/**
+ * Que tipo de mapa é este — ou `null` se não for um mapa de jogar.
+ *
+ * O endpoint devolve 26 entradas, e só 18 são lugares onde se joga. As outras
+ * oito são internas: cinco variações de Duelo (assetPath `Duel_*`/`Skirmish_*`),
+ * o Treinamento Básico, e o campo de tiro, que vem DUPLICADO — "The Range"
+ * aparece duas vezes, com os asset paths Poveglia e PovegliaV2.
+ *
+ * O campo `coordinates` parece o filtro óbvio e é armadilha: ele deixa passar
+ * as duas cópias do campo de tiro e barra os cinco mapas de Duelo por Equipes,
+ * que são jogáveis. `tacticalDescription` só existe nos mapas de partida
+ * padrão, e o prefixo HURM no asset path marca os de Duelo — juntos, separam
+ * exatamente o que se quer mostrar.
+ */
+export function modoDoMapa(mapa: Mapa): ModoMapa | null {
+  if (mapa.tacticalDescription) return 'padrao';
+  if (mapa.assetPath.includes('/HURM_')) return 'duelo';
+  return null;
+}
+
+export interface Arma {
+  uuid: string;
+  displayName: string;
+  category: string;
+  displayIcon: string;
+  shopData: {
+    cost: number;
+    categoryText: string;
+  } | null;
+}
+
+/** A resposta da API sempre embrulha o conteúdo em `data`. */
+export interface Resposta<T> {
+  status: number;
+  data: T;
+}
+
+/**
+ * Nome curto e legível da categoria da arma.
+ *
+ * A API devolve o caminho interno do jogo inteiro
+ * ("EEquippableCategory::Sidearm"), que não serve para ser exibido.
+ */
+const NOME_CATEGORIA: Record<string, string> = {
+  Melee: 'Corpo a corpo',
+  Sidearm: 'Pistolas',
+  SMG: 'Submetralhadoras',
+  Shotgun: 'Escopetas',
+  Rifle: 'Rifles',
+  Sniper: 'Snipers',
+  Heavy: 'Pesadas',
+};
+
+export function categoriaDe(arma: Arma): string {
+  const chave = arma.category.split('::').pop() ?? '';
+  return NOME_CATEGORIA[chave] ?? chave;
+}
+
+/**
+ * Gradiente CSS a partir das cores do agente.
+ *
+ * As cores vêm em hex de 8 dígitos e a última quase sempre termina em `00` —
+ * transparente. Usada crua, a metade de baixo do card simplesmente sumiria,
+ * então o alfa é descartado e a opacidade fica a cargo do CSS, que é onde dá
+ * para controlar.
+ */
+export function gradienteDe(agente: Agente): string {
+  const cores = agente.backgroundGradientColors
+    .map((c) => `#${c.slice(0, 6)}`)
+    .filter((c) => c.length === 7);
+
+  if (cores.length < 2) return 'linear-gradient(160deg, #2a3140, #0f1923)';
+  return `linear-gradient(160deg, ${cores.join(', ')})`;
+}

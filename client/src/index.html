@@ -1,13 +1,31 @@
 <!doctype html>
-<html lang="en">
-<head>
-  <meta charset="utf-8">
-  <title>Valorant</title>
-  <base href="/">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <link rel="icon" type="image/*" href="logo.svg">
-</head>
-<body>
-  <app-root></app-root>
-</body>
+<html lang="pt-BR">
+  <head>
+    <meta charset="utf-8" />
+    <title>VALORANT — agentes, mapas e armas</title>
+    <base href="/" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta
+      name="description"
+      content="Catálogo dos agentes, mapas e armas de VALORANT em português, montado sobre a valorant-api.com."
+    />
+    <meta name="theme-color" content="#0f1923" />
+    <link rel="icon" type="image/svg+xml" href="logo.svg" />
+
+    <!--
+      A Druk Wide é baixada do nosso próprio domínio e aparece no primeiro
+      título da tela. Sem o preload, o navegador só descobre que precisa dela
+      depois de baixar e interpretar o CSS — e o título pisca na fonte errada.
+    -->
+    <link
+      rel="preload"
+      href="DrukWide.woff"
+      as="font"
+      type="font/woff"
+      crossorigin
+    />
+  </head>
+  <body>
+    <app-root></app-root>
+  </body>
 </html>
