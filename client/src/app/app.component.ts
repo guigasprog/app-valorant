@@ -3,6 +3,7 @@ import { NavigationEnd, Router, RouterOutlet } from '@angular/router';
 import { filter } from 'rxjs';
 import { HeaderComponent } from './component/header.component';
 import { ReservaDirective } from './component/reserva.directive';
+import { ConsentimentoComponent } from './component/consentimento.component';
 import { DadosService } from './services/dados.service';
 import { splashDe, type Mapa } from './models/valorant';
 
@@ -17,7 +18,7 @@ import { splashDe, type Mapa } from './models/valorant';
  */
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet, HeaderComponent, ReservaDirective],
+  imports: [RouterOutlet, HeaderComponent, ReservaDirective, ConsentimentoComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     @switch (dados.estado()) {
@@ -41,6 +42,7 @@ import { splashDe, type Mapa } from './models/valorant';
       }
 
       @default {
+        <app-consentimento />
         <app-header />
         <div class="palco">
           @if (dados.mapaDeFundo(); as mapa) {

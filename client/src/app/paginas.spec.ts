@@ -10,7 +10,17 @@ import { ArmaPage } from './page/arma.page';
 import { MapasPage } from './page/mapas.page';
 import { ArmasPage } from './page/armas.page';
 import { HeaderComponent } from './component/header.component';
-import { categoriaDe, gradienteDe, modoDoMapa, type Agente, type Arma, type Mapa } from './models/valorant';
+import {
+  calloutsPosicionados,
+  categoriaDe,
+  gradienteDe,
+  modoDoMapa,
+  skinsDe,
+  videoDaSkin,
+  type Agente,
+  type Arma,
+  type Mapa,
+} from './models/valorant';
 
 /**
  * Testes de fumaça: cada página monta e mostra o que promete.
@@ -65,11 +75,16 @@ const MAPAS: Mapa[] = [
     splash: 'ascent-splash.png',
     tacticalDescription: 'A/B',
     assetPath: '/Game/Maps/Ascent/Ascent_PrimaryAsset',
+    // Multiplicadores reais do Ascent.
+    xMultiplier: 0.00007,
+    yMultiplier: -0.00007,
+    xScalarToAdd: 0.813895,
+    yScalarToAdd: 0.573242,
     callouts: [
-      { regionName: 'Árvore', superRegionName: 'A' },
-      { regionName: 'Mercado', superRegionName: 'Meio' },
+      { regionName: 'Árvore', superRegionName: 'A', location: { x: 3980.9, y: -5938.75 } },
+      { regionName: 'Mercado', superRegionName: 'Meio', location: { x: 0, y: 0 } },
       // Vem como fragmento de frase na API — vira título de grupo aqui.
-      { regionName: 'Pátio', superRegionName: 'no Lado Atacante' },
+      { regionName: 'Pátio', superRegionName: 'no Lado Atacante', location: { x: 100, y: 100 } },
     ],
   },
   {
@@ -80,8 +95,12 @@ const MAPAS: Mapa[] = [
     splash: 'district-splash.png',
     tacticalDescription: null,
     assetPath: '/Game/Maps/HURM_Alley/HURM_Alley_PrimaryAsset',
-    // Os mapas de Duelo por Equipes não têm callouts na API.
+    // Os mapas de Duelo por Equipes não têm callouts nem multiplicadores.
     callouts: null,
+    xMultiplier: null,
+    yMultiplier: null,
+    xScalarToAdd: null,
+    yScalarToAdd: null,
   },
 ];
 
@@ -91,6 +110,21 @@ const ARMAS: Arma[] = [
     displayName: 'Vandal',
     category: 'EEquippableCategory::Rifle',
     displayIcon: 'vandal.png',
+    defaultSkinUuid: 's0',
+    skins: [
+      // A primeira é a arma sem skin: não entra na grade.
+      { uuid: 's0', displayName: 'Vandal Padrão', contentTierUuid: null, displayIcon: 'v.png', chromas: [], levels: [] },
+      {
+        uuid: 's1',
+        displayName: 'Vandal RGX 11z Pro',
+        contentTierUuid: 't1',
+        displayIcon: 'rgx.png',
+        chromas: [{ uuid: 'c1', displayName: 'RGX', displayIcon: null, fullRender: 'rgx-full.png', swatch: 'rgx-sw.png', streamedVideo: null }],
+        levels: [{ uuid: 'l1', displayName: 'RGX', displayIcon: 'rgx.png', streamedVideo: 'rgx.mp4' }],
+      },
+      // Sem imagem nenhuma: viraria quadrado vazio, então é descartada.
+      { uuid: 's2', displayName: 'Fantasma', contentTierUuid: null, displayIcon: null, chromas: [], levels: [] },
+    ],
     weaponStats: {
       fireRate: 9.75,
       magazineSize: 25,
@@ -115,6 +149,8 @@ const ARMAS: Arma[] = [
     displayName: 'Confronto',
     category: 'EEquippableCategory::Melee',
     displayIcon: 'faca.png',
+    defaultSkinUuid: 'k0',
+    skins: [],
     weaponStats: null,
     shopData: null,
   },
@@ -126,6 +162,7 @@ function servicoFalso() {
     agentes: signal(AGENTES),
     mapas: signal(MAPAS),
     armas: signal(ARMAS),
+    tiers: signal(new Map([['t1', { uuid: 't1', displayName: 'Edição Premium', highlightColor: 'd1548dff', displayIcon: 't.png' }]])),
     mapaDeFundo: signal<Mapa | null>(MAPAS[0]),
     pronto: signal(true),
     carregar: () => {},
@@ -178,6 +215,10 @@ describe('Regras de leitura da API', () => {
       tacticalDescription: null,
       assetPath: '/Game/Maps/Poveglia/Range_PrimaryAsset',
       callouts: null,
+      xMultiplier: null,
+      yMultiplier: null,
+      xScalarToAdd: null,
+      yScalarToAdd: null,
     };
     expect(modoDoMapa(treino)).toBeNull();
   });
@@ -356,6 +397,42 @@ describe('Página do mapa', () => {
   it('avisa em vez de quebrar quando o uuid não existe', async () => {
     const el = (await abrir('nada')).nativeElement as HTMLElement;
     expect(el.textContent).toContain('Mapa não encontrado');
+  });
+});
+
+describe('Callouts sobre a planta', () => {
+  it('converte coordenada de mundo em posição dentro da imagem', () => {
+    const pontos = calloutsPosicionados(MAPAS[0]);
+
+    expect(pontos.length).toBe(3);
+    for (const p of pontos) {
+      // O ponto tem que cair DENTRO da imagem, senão aparece fora da planta.
+      expect(p.x).toBeGreaterThanOrEqual(0);
+      expect(p.x).toBeLessThanOrEqual(1);
+      expect(p.y).toBeGreaterThanOrEqual(0);
+      expect(p.y).toBeLessThanOrEqual(1);
+    }
+
+    // Os eixos são trocados: o X do mundo vira o Y da imagem.
+    const arvore = pontos[0];
+    expect(arvore.x).toBeCloseTo(-5938.75 * 0.00007 + 0.813895, 3);
+    expect(arvore.y).toBeCloseTo(3980.9 * -0.00007 + 0.573242, 3);
+  });
+
+  it('devolve vazio no mapa sem multiplicadores, em vez de NaN', () => {
+    expect(calloutsPosicionados(MAPAS[1])).toEqual([]);
+  });
+});
+
+describe('Skins', () => {
+  it('descarta a arma padrão e as skins sem imagem', () => {
+    const lista = skinsDe(ARMAS[0]);
+    expect(lista.map((s) => s.displayName)).toEqual(['Vandal RGX 11z Pro']);
+  });
+
+  it('acha o vídeo de inspeção quando existe', () => {
+    expect(videoDaSkin(ARMAS[0].skins[1])).toBe('rgx.mp4');
+    expect(videoDaSkin(ARMAS[0].skins[0])).toBeNull();
   });
 });
 

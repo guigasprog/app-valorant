@@ -79,6 +79,16 @@ export function habilidadesOrdenadas(agente: Agente): Habilidade[] {
 export interface Callout {
   regionName: string;
   superRegionName: string;
+  location: { x: number; y: number };
+}
+
+/** Um callout já convertido para posição dentro da imagem do minimapa. */
+export interface PontoCallout {
+  nome: string;
+  regiao: string;
+  /** Fração de 0 a 1 da largura e da altura da imagem. */
+  x: number;
+  y: number;
 }
 
 export interface Mapa {
@@ -93,6 +103,38 @@ export interface Mapa {
   assetPath: string;
   /** 16 dos 26 mapas têm; os de Duelo por Equipes não. */
   callouts: Callout[] | null;
+  /**
+   * Convertem coordenada de mundo em posição no minimapa. Só 13 dos 26 mapas
+   * trazem — sem eles não dá para posicionar nada, e a lista agrupada é o que
+   * sobra.
+   */
+  xMultiplier: number | null;
+  yMultiplier: number | null;
+  xScalarToAdd: number | null;
+  yScalarToAdd: number | null;
+}
+
+/**
+ * Os callouts posicionados sobre a imagem do minimapa.
+ *
+ * A conversão troca os eixos de propósito: o X do mundo do jogo vira o Y da
+ * imagem e vice-versa, porque o minimapa é renderizado girado em relação ao
+ * sistema de coordenadas do nível. Conferido contra o Ascent — os 22 pontos
+ * caem dentro de 0..1, entre 0,13 e 0,82 na horizontal.
+ *
+ * Retorna vazio quando o mapa não traz os multiplicadores, e quem chama mostra
+ * a lista agrupada no lugar.
+ */
+export function calloutsPosicionados(mapa: Mapa): PontoCallout[] {
+  const { xMultiplier: xm, yMultiplier: ym, xScalarToAdd: xs, yScalarToAdd: ys } = mapa;
+  if (xm == null || ym == null || xs == null || ys == null) return [];
+
+  return (mapa.callouts ?? []).map((c) => ({
+    nome: c.regionName,
+    regiao: c.superRegionName.replace(/^(no|na|em)\s+/i, ''),
+    x: c.location.y * xm + xs,
+    y: c.location.x * ym + ys,
+  }));
 }
 
 /**
@@ -169,11 +211,50 @@ export interface EstatisticasArma {
   damageRanges: FaixaDeDano[];
 }
 
+export interface NivelSkin {
+  uuid: string;
+  displayName: string;
+  displayIcon: string | null;
+  /** O vídeo de inspeção. Existe em 578 das 1405 skins do jogo. */
+  streamedVideo: string | null;
+}
+
+export interface ChromaSkin {
+  uuid: string;
+  displayName: string;
+  displayIcon: string | null;
+  fullRender: string | null;
+  swatch: string | null;
+  streamedVideo: string | null;
+}
+
+export interface Skin {
+  uuid: string;
+  displayName: string;
+  contentTierUuid: string | null;
+  displayIcon: string | null;
+  chromas: ChromaSkin[];
+  levels: NivelSkin[];
+}
+
+export interface Tier {
+  uuid: string;
+  displayName: string;
+  highlightColor: string;
+  displayIcon: string;
+}
+
 export interface Arma {
   uuid: string;
   displayName: string;
   category: string;
   displayIcon: string;
+  defaultSkinUuid: string;
+  /**
+   * Vêm embutidas no endpoint de armas: 3,44 MB de JSON, que o app já baixava
+   * antes de existir tela para mostrá-las. Usá-las não custa requisição nova.
+   */
+  skins: Skin[];
   /** A faca não tem: não é comprada nem tem tabela de dano por distância. */
   weaponStats: EstatisticasArma | null;
   shopData: {
@@ -203,6 +284,37 @@ const TRADUCAO: Record<string, string> = {
   AirBurst: 'Tiro aéreo',
   Shotgun: 'Modo escopeta',
 };
+
+/**
+ * As skins que valem mostrar.
+ *
+ * A primeira da lista é a arma padrão — o próprio modelo sem skin, que já é a
+ * arte do topo da página. E há skins sem nenhuma imagem, que virariam quadrado
+ * vazio na grade.
+ */
+export function skinsDe(arma: Arma): Skin[] {
+  return arma.skins.filter(
+    (s) => s.uuid !== arma.defaultSkinUuid && (s.displayIcon || s.levels[0]?.displayIcon),
+  );
+}
+
+/** A melhor arte disponível da skin, do mais específico para o mais genérico. */
+export function arteDaSkin(skin: Skin): string | null {
+  return (
+    skin.chromas[0]?.fullRender ?? skin.displayIcon ?? skin.levels[0]?.displayIcon ?? null
+  );
+}
+
+/**
+ * O vídeo de inspeção, se a skin tiver. Os níveis costumam trazer o melhor —
+ * é o vídeo do acabamento completo; os chromas trazem variação de cor.
+ */
+export function videoDaSkin(skin: Skin): string | null {
+  for (let i = skin.levels.length - 1; i >= 0; i--) {
+    if (skin.levels[i].streamedVideo) return skin.levels[i].streamedVideo;
+  }
+  return skin.chromas.find((c) => c.streamedVideo)?.streamedVideo ?? null;
+}
 
 export function traduzirEnum(valor: string | null): string | null {
   if (!valor) return null;

@@ -12,6 +12,10 @@
     <meta name="theme-color" content="#0f1923" />
     <link rel="icon" type="image/svg+xml" href="logo.svg" />
 
+    <!-- Verificação de propriedade do site no AdSense. É só uma meta tag: não
+         carrega script nem grava cookie, então não depende do consentimento. -->
+    <meta name="google-adsense-account" content="ca-pub-8055925890972545" />
+
     <!--
       A Druk Wide é baixada do nosso próprio domínio e aparece no primeiro
       título da tela. Sem o preload, o navegador só descobre que precisa dela
@@ -27,5 +31,33 @@
   </head>
   <body>
     <app-root></app-root>
+
+    <!--
+      Sem consentimento gravado, pedimos anúncios NÃO personalizados. Precisa
+      rodar ANTES do script do AdSense, por isso está inline e acima dele.
+    -->
+    <script>
+      (function () {
+        try {
+          if (localStorage.getItem('app-valorant:consentimento') !== 'aceito') {
+            (window.adsbygoogle = window.adsbygoogle || []).requestNonPersonalizedAds = 1;
+          }
+        } catch (e) {
+          (window.adsbygoogle = window.adsbygoogle || []).requestNonPersonalizedAds = 1;
+        }
+      })();
+    </script>
+
+    <!--
+      Carregado sempre, e não atrás do aviso: o rastreador do AdSense não clica
+      em "Aceitar", então com o script escondido atrás do consentimento ele
+      nunca acha o código e a verificação do site falha. O consentimento decide
+      personalização, não existência do anúncio.
+    -->
+    <script
+      async
+      src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8055925890972545"
+      crossorigin="anonymous"
+    ></script>
   </body>
 </html>

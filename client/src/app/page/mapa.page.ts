@@ -1,9 +1,17 @@
-import { ChangeDetectionStrategy, Component, computed, inject, input } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  inject,
+  input,
+  signal,
+} from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { DadosService } from '../services/dados.service';
 import { ReservaDirective } from '../component/reserva.directive';
 import {
   calloutsPorRegiao,
+  calloutsPosicionados,
   minimapaDe,
   modoDoMapa,
   NOME_MODO,
@@ -64,15 +72,46 @@ import {
 
         @if (m.displayIcon) {
           <section class="planta">
-            <h2>Planta</h2>
+            <div class="cabeca-planta">
+              <h2>Planta</h2>
+              @if (pontos().length > 0) {
+                <button
+                  type="button"
+                  class="alternar"
+                  [class.ativa]="mostrarNomes()"
+                  (click)="mostrarNomes.set(!mostrarNomes())"
+                >
+                  {{ mostrarNomes() ? 'Esconder nomes' : 'Mostrar nomes' }}
+                </button>
+              }
+            </div>
+
             <div class="quadro canto">
-              <img
-                [src]="minimapa(m)"
-                [reserva]="m.displayIcon"
-                [alt]="'Planta de ' + m.displayName"
-                loading="lazy"
-                decoding="async"
-              />
+              <!-- O invólucro encolhe até a imagem para que os callouts, que
+                   vêm em fração de 0 a 1, caiam no lugar certo em qualquer
+                   largura de tela. -->
+              <div class="tela-planta">
+                <img
+                  [src]="minimapa(m)"
+                  [reserva]="m.displayIcon"
+                  [alt]="'Planta de ' + m.displayName"
+                  loading="lazy"
+                  decoding="async"
+                />
+
+                @for (p of pontos(); track p.nome + p.x) {
+                  <span
+                    class="ponto"
+                    [class.com-nome]="mostrarNomes()"
+                    [style.left.%]="p.x * 100"
+                    [style.top.%]="p.y * 100"
+                    [title]="p.nome + ' — ' + p.regiao"
+                  >
+                    <span class="marca" aria-hidden="true"></span>
+                    <span class="rotulo">{{ p.nome }}</span>
+                  </span>
+                }
+              </div>
             </div>
           </section>
         }
@@ -195,10 +234,95 @@ import {
       border: 1px solid var(--borda);
     }
 
-    .quadro img {
+    .cabeca-planta {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: 1rem;
+    }
+
+    .alternar {
+      font-size: 0.68rem;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--cinza);
+      padding: 0.35rem 0.8rem;
+      border: 1px solid var(--borda);
+      transition:
+        color 140ms ease,
+        border-color 140ms ease;
+    }
+
+    .alternar:hover {
+      color: var(--osso);
+      border-color: var(--cinza);
+    }
+
+    .alternar.ativa {
+      color: var(--noite);
+      background: var(--osso);
+      border-color: var(--osso);
+    }
+
+    /* Encolhe até a imagem: os callouts são posicionados em % dela, então o
+       invólucro não pode ser mais largo que ela ou tudo escorrega. */
+    .tela-planta {
+      position: relative;
+      display: inline-block;
       width: 100%;
       max-width: 42rem;
+    }
+
+    .quadro img {
+      display: block;
+      width: 100%;
       height: auto;
+    }
+
+    .ponto {
+      position: absolute;
+      translate: -50% -50%;
+      display: flex;
+      align-items: center;
+      gap: 0.3rem;
+      pointer-events: none;
+      white-space: nowrap;
+    }
+
+    .marca {
+      width: 7px;
+      height: 7px;
+      flex-shrink: 0;
+      border-radius: 50%;
+      background: var(--vermelho);
+      box-shadow: 0 0 0 2px rgba(15, 25, 35, 0.9);
+    }
+
+    .rotulo {
+      display: none;
+      font-size: 0.6rem;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      color: var(--osso);
+      /* Contorno em vez de caixa: uma caixa por callout taparia a planta. */
+      text-shadow:
+        0 0 3px #0f1923,
+        0 0 3px #0f1923,
+        0 0 5px #0f1923;
+    }
+
+    .ponto.com-nome .rotulo {
+      display: inline;
+    }
+
+    /* Num telefone os 22 nomes viram uma mancha: só os pontos, e o nome fica no
+       title e na lista agrupada abaixo. */
+    @media (max-width: 640px) {
+      .ponto.com-nome .rotulo {
+        display: none;
+      }
     }
 
     .callouts {
@@ -274,9 +398,17 @@ export class MapaPage {
 
   readonly mapa = computed(() => this.dados.mapaPorUuid(this.uuid()));
 
+  readonly mostrarNomes = signal(true);
+
   readonly regioes = computed(() => {
     const m = this.mapa();
     return m ? calloutsPorRegiao(m) : [];
+  });
+
+  /** Vazio nos 13 mapas sem multiplicador — aí só a lista agrupada aparece. */
+  readonly pontos = computed(() => {
+    const m = this.mapa();
+    return m ? calloutsPosicionados(m) : [];
   });
 
   splash = (m: Mapa) => splashDe(m);

@@ -1,7 +1,14 @@
 import { Injectable, computed, inject, signal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { forkJoin } from 'rxjs';
-import { modoDoMapa, type Agente, type Arma, type Mapa, type Resposta } from '../models/valorant';
+import {
+  modoDoMapa,
+  type Agente,
+  type Arma,
+  type Mapa,
+  type Resposta,
+  type Tier,
+} from '../models/valorant';
 
 export type Estado = 'carregando' | 'pronto' | 'erro';
 
@@ -32,6 +39,8 @@ export class DadosService {
   readonly agentes = signal<Agente[]>([]);
   readonly mapas = signal<Mapa[]>([]);
   readonly armas = signal<Arma[]>([]);
+  /** Cinco edições (Deluxe, Premium, Ultra…), cada uma com sua cor. */
+  readonly tiers = signal<Map<string, Tier>>(new Map());
 
   /** Um mapa sorteado serve de fundo para a tela inteira. */
   readonly mapaDeFundo = signal<Mapa | null>(null);
@@ -47,8 +56,9 @@ export class DadosService {
       ),
       mapas: this.http.get<Resposta<Mapa[]>>(`${this.base}/maps?language=pt-BR`),
       armas: this.http.get<Resposta<Arma[]>>(`${this.base}/weapons?language=pt-BR`),
+      tiers: this.http.get<Resposta<Tier[]>>(`${this.base}/contenttiers?language=pt-BR`),
     }).subscribe({
-      next: ({ agentes, mapas, armas }) => {
+      next: ({ agentes, mapas, armas, tiers }) => {
         // Ordem alfabética, e não por `releaseDate`: a API devolve
         // "1970-01-01" para praticamente todo agente, então ordenar por data
         // era uma comparação entre iguais que não ordenava nada.
@@ -64,6 +74,7 @@ export class DadosService {
         this.sortearFundo(jogaveis);
 
         this.armas.set(armas.data);
+        this.tiers.set(new Map(tiers.data.map((t) => [t.uuid, t])));
         this.estado.set('pronto');
       },
       error: () => this.estado.set('erro'),

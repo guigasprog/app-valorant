@@ -45,6 +45,11 @@ export const routes: Routes = [
     title: 'Arma — VALORANT',
     loadComponent: () => import('./page/arma.page').then((m) => m.ArmaPage),
   },
+  {
+    path: 'privacidade',
+    title: 'Privacidade — VALORANT',
+    loadComponent: () => import('./page/privacidade.page').then((m) => m.PrivacidadePage),
+  },
   // A rota antiga, em inglês, continua respondendo: era o único link que
   // existia no ar, e quebrá-lo não traria nada.
   { path: 'agents', redirectTo: 'agentes' },
