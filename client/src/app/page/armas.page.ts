@@ -1,6 +1,7 @@
 import { ChangeDetectionStrategy, Component, computed, inject } from '@angular/core';
 import { DadosService } from '../services/dados.service';
-import { categoriaDe, type Arma } from '../models/valorant';
+import { ReservaDirective } from '../component/reserva.directive';
+import { categoriaDe, iconeDaArma, type Arma } from '../models/valorant';
 
 /** A ordem da loja no jogo — alfabética aqui não diria nada a ninguém. */
 const ORDEM = [
@@ -15,6 +16,7 @@ const ORDEM = [
 
 @Component({
   selector: 'app-armas',
+  imports: [ReservaDirective],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <div class="envolve">
@@ -32,7 +34,8 @@ const ORDEM = [
             @for (arma of grupo.armas; track arma.uuid) {
               <li class="card canto">
                 <img
-                  [src]="arma.displayIcon"
+                  [src]="imagem(arma)"
+                  [reserva]="arma.displayIcon"
                   [alt]="arma.displayName"
                   loading="lazy"
                   decoding="async"
@@ -111,6 +114,7 @@ const ORDEM = [
     .card:hover {
       background: var(--noite-card);
       border-color: var(--vermelho);
+      --cor-canto: var(--vermelho);
     }
 
     /* A arte das armas vem em proporções bem diferentes — uma faca e uma
@@ -150,6 +154,8 @@ const ORDEM = [
 })
 export class ArmasPage {
   private readonly dados = inject(DadosService);
+
+  imagem = (a: Arma) => iconeDaArma(a);
 
   readonly grupos = computed(() => {
     const porCategoria = new Map<string, Arma[]>();

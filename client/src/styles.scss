@@ -117,9 +117,48 @@ button {
   -webkit-text-stroke: 1px var(--vermelho);
 }
 
-/* O canto cortado do VALORANT. */
+/*
+ * O canto cortado do VALORANT.
+ *
+ * O `clip-path` sozinho deixava a diagonal sem contorno: a borda do elemento é
+ * desenhada no retângulo e o recorte passa por cima dela, então aquele pedaço
+ * ficava aberto. O `::after` fecha — é um quadrado do tamanho do corte,
+ * encostado no canto, que o próprio recorte do pai corta ao meio. Sobra
+ * exatamente o triângulo de dentro, na cor da borda, completando o quadrado
+ * com o triângulo transparente que o recorte tirou.
+ *
+ * Fazer o quadrado inteiro e deixar o pai cortar, em vez de desenhar o
+ * triângulo à mão com um segundo clip-path, garante que os dois lados usem a
+ * MESMA diagonal — dois cálculos separados desencontram por um pixel e a junta
+ * aparece.
+ */
 .canto {
-  clip-path: polygon(0 0, 100% 0, 100% calc(100% - 14px), calc(100% - 14px) 100%, 0 100%);
+  --corte: 14px;
+  --cor-canto: var(--borda);
+
+  position: relative;
+  clip-path: polygon(
+    0 0,
+    100% 0,
+    100% calc(100% - var(--corte)),
+    calc(100% - var(--corte)) 100%,
+    0 100%
+  );
+}
+
+.canto::after {
+  content: '';
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  width: var(--corte);
+  height: var(--corte);
+  background: var(--cor-canto);
+  pointer-events: none;
+  /* Acima do conteúdo: nos cards de agente o texto sobe por cima do retrato e
+     cobriria o canto. */
+  z-index: 3;
+  transition: background 160ms ease;
 }
 
 .envolve {

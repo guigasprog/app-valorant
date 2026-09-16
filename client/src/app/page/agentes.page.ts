@@ -1,33 +1,38 @@
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
+import { RouterLink } from '@angular/router';
 import { DadosService } from '../services/dados.service';
-import { gradienteDe, type Agente } from '../models/valorant';
+import { ReservaDirective } from '../component/reserva.directive';
+import {
+  gradienteDe,
+  iconeDaFuncao,
+  iconeDaHabilidade,
+  habilidadesOrdenadas,
+  retratoDe,
+  type Agente,
+  type Habilidade,
+} from '../models/valorant';
 
 /**
- * Os agentes.
+ * A grade de agentes, que é o índice: cada card abre a página do agente.
  *
  * A versão anterior era uma fita horizontal de cards com `width: 22%` e
  * `gap: 100px`, e os nomes girados 90° posicionados com `left: -49%; top: 33%`.
- * Bonito na largura em que foi ajustado, desmontado em qualquer outra — e num
- * celular, ilegível. Virou grade fluida; o nome voltou a ser horizontal, onde
- * ele pode crescer sem atropelar nada.
+ * Bonito na largura em que foi ajustado, desmontado em qualquer outra.
  *
- * O que ficou: cada card usa o `backgroundGradientColors` do próprio agente, um
- * par de cores que a API já entregava e ninguém estava usando. É o que faz uma
- * grade de 32 retratos não virar 32 retângulos iguais.
+ * Cada card usa o `backgroundGradientColors` do próprio agente — um par de
+ * cores que a API já entregava e ninguém estava usando. É o que faz uma grade
+ * de 29 retratos não virar 29 retângulos iguais.
  */
 @Component({
   selector: 'app-agentes',
+  imports: [RouterLink, ReservaDirective],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <div class="envolve">
       <header class="topo">
         <h1 class="vazado">Agentes</h1>
         <div class="funcoes" role="group" aria-label="Filtrar por função">
-          <button
-            type="button"
-            [class.ativa]="funcao() === null"
-            (click)="funcao.set(null)"
-          >
+          <button type="button" [class.ativa]="funcao() === null" (click)="funcao.set(null)">
             Todos
           </button>
           @for (f of funcoes(); track f) {
@@ -40,32 +45,49 @@ import { gradienteDe, type Agente } from '../models/valorant';
 
       <ul class="grade">
         @for (agente of visiveis(); track agente.uuid) {
-          <li class="card canto" [style.background]="gradiente(agente)">
-            <div class="retrato">
-              <img
-                [src]="agente.bustPortrait ?? agente.displayIcon"
-                [alt]="agente.displayName"
-                loading="lazy"
-                decoding="async"
-              />
-            </div>
+          <li>
+            <a
+              [routerLink]="['/agentes', agente.uuid]"
+              class="card canto"
+              [style.background]="gradiente(agente)"
+            >
+              <div class="retrato">
+                <img
+                  [src]="retrato(agente)"
+                  [reserva]="agente.bustPortrait"
+                  [alt]="agente.displayName"
+                  loading="lazy"
+                  decoding="async"
+                />
+              </div>
 
-            <div class="texto">
-              <p class="funcao">
-                <img [src]="agente.role.displayIcon" alt="" aria-hidden="true" />
-                {{ agente.role.displayName }}
-              </p>
-              <h2>{{ agente.displayName }}</h2>
+              <div class="texto">
+                <p class="funcao">
+                  <img
+                    [src]="iconeFuncao(agente)"
+                    [reserva]="agente.role.displayIcon"
+                    alt=""
+                    aria-hidden="true"
+                    loading="lazy"
+                  />
+                  {{ agente.role.displayName }}
+                </p>
+                <h2>{{ agente.displayName }}</h2>
 
-              <ul class="habilidades" [attr.aria-label]="'Habilidades de ' + agente.displayName">
-                @for (h of comIcone(agente); track h.slot) {
-                  <li>
-                    <img [src]="h.displayIcon" [alt]="h.displayName" loading="lazy" />
-                    <span class="dica">{{ h.displayName }}</span>
-                  </li>
-                }
-              </ul>
-            </div>
+                <ul class="habilidades" aria-hidden="true">
+                  @for (h of habilidades(agente); track h.slot) {
+                    <li>
+                      <img
+                        [src]="iconeHabilidade(agente, h)"
+                        [reserva]="h.displayIcon"
+                        alt=""
+                        loading="lazy"
+                      />
+                    </li>
+                  }
+                </ul>
+              </div>
+            </a>
           </li>
         } @empty {
           <li class="vazio">Nenhum agente com essa função.</li>
@@ -129,6 +151,7 @@ import { gradienteDe, type Agente } from '../models/valorant';
       position: relative;
       display: flex;
       flex-direction: column;
+      height: 100%;
       overflow: hidden;
       border: 1px solid var(--borda);
       transition:
@@ -139,6 +162,7 @@ import { gradienteDe, type Agente } from '../models/valorant';
     .card:hover {
       transform: translateY(-4px);
       border-color: var(--osso);
+      --cor-canto: var(--osso);
     }
 
     .retrato {
@@ -159,8 +183,8 @@ import { gradienteDe, type Agente } from '../models/valorant';
       transform: scale(1.05);
     }
 
-    /* O texto fica sobre o fim do retrato, não abaixo dele: o degradê preto
-       garante contraste sem precisar de uma faixa sólida cortando a arte. */
+    /* O texto fica sobre o fim do retrato, não abaixo dele: o degradê garante
+       contraste sem uma faixa sólida cortando a arte. */
     .texto {
       position: relative;
       margin-top: -3.5rem;
@@ -182,8 +206,6 @@ import { gradienteDe, type Agente } from '../models/valorant';
     .funcao img {
       width: 13px;
       height: 13px;
-      /* Os ícones de função vêm brancos e sólidos; sem isto, brigam com o
-         texto cinza ao lado. */
       opacity: 0.6;
     }
 
@@ -201,9 +223,8 @@ import { gradienteDe, type Agente } from '../models/valorant';
     }
 
     .habilidades li {
-      position: relative;
-      width: 28px;
-      height: 28px;
+      width: 26px;
+      height: 26px;
       display: grid;
       place-items: center;
       background: rgba(0, 0, 0, 0.35);
@@ -211,27 +232,8 @@ import { gradienteDe, type Agente } from '../models/valorant';
     }
 
     .habilidades img {
-      width: 17px;
-      height: 17px;
-    }
-
-    .dica {
-      position: absolute;
-      bottom: calc(100% + 6px);
-      left: 50%;
-      transform: translateX(-50%);
-      white-space: nowrap;
-      font-size: 0.64rem;
-      padding: 0.25rem 0.5rem;
-      background: var(--noite);
-      border: 1px solid var(--borda);
-      opacity: 0;
-      pointer-events: none;
-      transition: opacity 120ms ease;
-    }
-
-    .habilidades li:hover .dica {
-      opacity: 1;
+      width: 16px;
+      height: 16px;
     }
 
     .vazio {
@@ -259,12 +261,9 @@ export class AgentesPage {
     return f === null ? todos : todos.filter((a) => a.role.displayName === f);
   });
 
-  gradiente(agente: Agente): string {
-    return gradienteDe(agente);
-  }
-
-  /** Passivas vêm sem ícone e virariam um quadrado vazio na fileira. */
-  comIcone(agente: Agente) {
-    return agente.abilities.filter((h) => h.displayIcon);
-  }
+  gradiente = (a: Agente) => gradienteDe(a);
+  retrato = (a: Agente) => retratoDe(a);
+  iconeFuncao = (a: Agente) => iconeDaFuncao(a);
+  iconeHabilidade = (a: Agente, h: Habilidade) => iconeDaHabilidade(a, h);
+  habilidades = (a: Agente) => habilidadesOrdenadas(a);
 }

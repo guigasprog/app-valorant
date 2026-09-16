@@ -20,6 +20,12 @@ export const routes: Routes = [
     loadComponent: () => import('./page/agentes.page').then((m) => m.AgentesPage),
   },
   {
+    // O uuid vira input do componente graças ao `withComponentInputBinding`.
+    path: 'agentes/:uuid',
+    title: 'Agente — VALORANT',
+    loadComponent: () => import('./page/agente.page').then((m) => m.AgentePage),
+  },
+  {
     path: 'mapas',
     title: 'Mapas — VALORANT',
     loadComponent: () => import('./page/mapas.page').then((m) => m.MapasPage),

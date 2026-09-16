@@ -2,7 +2,9 @@ import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { NavigationEnd, Router, RouterOutlet } from '@angular/router';
 import { filter } from 'rxjs';
 import { HeaderComponent } from './component/header.component';
+import { ReservaDirective } from './component/reserva.directive';
 import { DadosService } from './services/dados.service';
+import { splashDe, type Mapa } from './models/valorant';
 
 /**
  * A casca: splash enquanto os dados vêm, erro quando não vêm, e o fundo.
@@ -15,7 +17,7 @@ import { DadosService } from './services/dados.service';
  */
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet, HeaderComponent],
+  imports: [RouterOutlet, HeaderComponent, ReservaDirective],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     @switch (dados.estado()) {
@@ -42,7 +44,13 @@ import { DadosService } from './services/dados.service';
         <app-header />
         <div class="palco">
           @if (dados.mapaDeFundo(); as mapa) {
-            <img class="fundo" [src]="mapa.splash" alt="" aria-hidden="true" />
+            <img
+              class="fundo"
+              [src]="fundo(mapa)"
+              [reserva]="mapa.splash"
+              alt=""
+              aria-hidden="true"
+            />
           }
           <main>
             <router-outlet />
@@ -74,6 +82,11 @@ import { DadosService } from './services/dados.service';
     }
 
     .splash button {
+      /* Num botão preenchido o triângulo do canto não pode ser a cor da borda:
+         seria uma cunha cinza sobre o vermelho. Uma sombra do próprio botão lê
+         como dobra. */
+      --cor-canto: rgba(0, 0, 0, 0.45);
+
       padding: 0.7rem 1.6rem;
       background: var(--vermelho);
       color: var(--noite);
@@ -133,6 +146,8 @@ import { DadosService } from './services/dados.service';
 export class AppComponent {
   readonly dados = inject(DadosService);
   private readonly router = inject(Router);
+
+  fundo = (m: Mapa) => splashDe(m);
 
   constructor() {
     this.dados.carregar();

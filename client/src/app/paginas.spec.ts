@@ -4,6 +4,7 @@ import { signal, type Type } from '@angular/core';
 import { DadosService } from './services/dados.service';
 import { InicioPage } from './page/inicio.page';
 import { AgentesPage } from './page/agentes.page';
+import { AgentePage } from './page/agente.page';
 import { MapasPage } from './page/mapas.page';
 import { ArmasPage } from './page/armas.page';
 import { HeaderComponent } from './component/header.component';
@@ -25,6 +26,7 @@ const AGENTES: Agente[] = [
     displayName: 'Jett',
     description: 'Duelista veloz.',
     displayIcon: 'jett.png',
+    displayIconSmall: 'jett-pequeno.png',
     bustPortrait: 'jett-busto.png',
     fullPortrait: 'jett-inteiro.png',
     background: 'jett-fundo.png',
@@ -42,6 +44,7 @@ const AGENTES: Agente[] = [
     displayName: 'Sage',
     description: 'Sentinela de suporte.',
     displayIcon: 'sage.png',
+    displayIconSmall: null,
     bustPortrait: null,
     fullPortrait: null,
     background: null,
@@ -100,6 +103,7 @@ function servicoFalso() {
     pronto: signal(true),
     carregar: () => {},
     sortearFundo: () => {},
+    agentePorUuid: (uuid: string) => AGENTES.find((a) => a.uuid === uuid),
   };
 }
 
@@ -181,11 +185,77 @@ describe('Agentes', () => {
     expect(el.querySelectorAll('.habilidades li').length).toBe(1);
   });
 
-  it('sobrevive a agente sem retrato, caindo no ícone', async () => {
+  it('aponta para a mídia local, não para os PNGs de 2048px da API', async () => {
     const fixture = await montar(AgentesPage);
-    const imagens = (fixture.nativeElement as HTMLElement).querySelectorAll('.retrato img');
+    const imagens = [
+      ...(fixture.nativeElement as HTMLElement).querySelectorAll<HTMLImageElement>('.retrato img'),
+    ];
+
     expect(imagens.length).toBe(2);
-    expect(imagens[1].getAttribute('src')).toContain('sage.png');
+    expect(imagens[0].getAttribute('src')).toBe('/midia/agentes/a1-retrato.webp');
+  });
+
+  it('cai na URL da API quando a cópia local não existe', async () => {
+    const fixture = await montar(AgentesPage);
+    const img = (fixture.nativeElement as HTMLElement).querySelector<HTMLImageElement>(
+      '.retrato img',
+    )!;
+
+    // É o que acontece com um agente lançado depois da última execução do
+    // script de mídia: o arquivo local dá 404 e o <img> emite `error`.
+    img.dispatchEvent(new Event('error'));
+    fixture.detectChanges();
+
+    expect(img.getAttribute('src')).toContain('jett-busto.png');
+  });
+});
+
+describe('Página do agente', () => {
+  async function abrir(uuid: string) {
+    await TestBed.configureTestingModule({
+      imports: [AgentePage],
+      providers: [provideRouter([]), { provide: DadosService, useValue: servicoFalso() }],
+    }).compileComponents();
+
+    const fixture = TestBed.createComponent(AgentePage);
+    fixture.componentRef.setInput('uuid', uuid);
+    fixture.detectChanges();
+    return fixture;
+  }
+
+  it('mostra nome, função e descrição do agente da rota', async () => {
+    const el = (await abrir('a1')).nativeElement as HTMLElement;
+
+    expect(el.querySelector('h1')?.textContent).toContain('Jett');
+    expect(el.textContent).toContain('Duelista');
+    expect(el.textContent).toContain('Duelista veloz.');
+  });
+
+  it('lista as habilidades com a tecla do jogo e abre a primeira', async () => {
+    const el = (await abrir('a1')).nativeElement as HTMLElement;
+
+    // Só a que tem ícone: a passiva de Jett vem sem, e viraria botão vazio.
+    const botoes = el.querySelectorAll('.teclas button');
+    expect(botoes.length).toBe(1);
+    expect(el.querySelector('.tecla')?.textContent?.trim()).toBe('Q');
+
+    // A primeira já vem aberta, para o painel nunca nascer vazio.
+    expect(el.querySelector('.detalhe h2')?.textContent).toContain('Corrente Ascendente');
+  });
+
+  it('traz o elenco inteiro na coluna, marcando o atual', async () => {
+    const el = (await abrir('a1')).nativeElement as HTMLElement;
+
+    expect(el.querySelectorAll('.elenco a').length).toBe(2);
+    expect(el.querySelectorAll('.elenco a.atual').length).toBe(1);
+    expect(el.querySelector('.elenco a.atual')?.getAttribute('href')).toContain('a1');
+  });
+
+  it('avisa em vez de quebrar quando o uuid não existe', async () => {
+    const el = (await abrir('uuid-inventado')).nativeElement as HTMLElement;
+
+    expect(el.textContent).toContain('Agente não encontrado');
+    expect(el.querySelector('.elenco')).toBeNull();
   });
 });
 

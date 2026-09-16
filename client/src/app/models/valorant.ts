@@ -26,6 +26,7 @@ export interface Agente {
   displayName: string;
   description: string;
   displayIcon: string;
+  displayIconSmall: string | null;
   bustPortrait: string | null;
   fullPortrait: string | null;
   background: string | null;
@@ -37,6 +38,41 @@ export interface Agente {
   backgroundGradientColors: string[];
   role: Funcao;
   abilities: Habilidade[];
+}
+
+/**
+ * A tecla de cada habilidade.
+ *
+ * A API devolve o slot interno ("Grenade", "Ability1"), que não diz nada a quem
+ * joga — no jogo essas habilidades são C, Q, E e X. A passiva não tem tecla
+ * porque não é acionada.
+ *
+ * Não existe vídeo de habilidade nesta API: os campos são exatamente `slot`,
+ * `displayName`, `description` e `displayIcon`, e mais nada, em toda a base. Os
+ * vídeos do site oficial vêm de outro lugar.
+ */
+const TECLA: Record<string, string> = {
+  Grenade: 'C',
+  Ability1: 'Q',
+  Ability2: 'E',
+  Ultimate: 'X',
+};
+
+/** Ordem em que o jogo mostra as habilidades — não é a ordem que a API devolve. */
+const ORDEM_SLOT = ['Grenade', 'Ability1', 'Ability2', 'Ultimate', 'Passive'];
+
+export function teclaDe(habilidade: Habilidade): string | null {
+  return TECLA[habilidade.slot] ?? null;
+}
+
+export function habilidadesOrdenadas(agente: Agente): Habilidade[] {
+  return [...agente.abilities]
+    .filter((h) => h.displayIcon)
+    .sort((a, b) => {
+      const ia = ORDEM_SLOT.indexOf(a.slot);
+      const ib = ORDEM_SLOT.indexOf(b.slot);
+      return (ia === -1 ? ORDEM_SLOT.length : ia) - (ib === -1 ? ORDEM_SLOT.length : ib);
+    });
 }
 
 export interface Mapa {
@@ -86,6 +122,41 @@ export interface Arma {
     cost: number;
     categoryText: string;
   } | null;
+}
+
+/**
+ * Caminhos da mídia local, gerada por `scripts/baixar-midia.mjs`.
+ *
+ * A API serve PNG de 2048×1860 para retratos que a tela desenha com 216px, e de
+ * 1024×1024 para ícones de 17px: 82 MB no total, contra 2,7 MB redimensionados.
+ * Cada função devolve o caminho local; quem usa passa a URL da API como reserva,
+ * para um agente lançado depois da última execução do script continuar
+ * aparecendo em vez de virar imagem quebrada.
+ */
+const MIDIA = '/midia';
+
+export function retratoDe(agente: Agente): string {
+  return `${MIDIA}/agentes/${agente.uuid}-retrato.webp`;
+}
+
+export function iconeDe(agente: Agente): string {
+  return `${MIDIA}/agentes/${agente.uuid}-icone.webp`;
+}
+
+export function iconeDaFuncao(agente: Agente): string {
+  return `${MIDIA}/funcoes/${agente.role.uuid}.webp`;
+}
+
+export function iconeDaHabilidade(agente: Agente, habilidade: Habilidade): string {
+  return `${MIDIA}/habilidades/${agente.uuid}-${habilidade.slot}.webp`;
+}
+
+export function splashDe(mapa: Mapa): string {
+  return `${MIDIA}/mapas/${mapa.uuid}.webp`;
+}
+
+export function iconeDaArma(arma: Arma): string {
+  return `${MIDIA}/armas/${arma.uuid}.webp`;
 }
 
 /** A resposta da API sempre embrulha o conteúdo em `data`. */

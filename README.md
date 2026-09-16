@@ -50,6 +50,18 @@ no `assetPath` (os de Duelo). Ver `modoDoMapa`.
 costuma vir `00`, o que apagaria metade do card — por isso `gradienteDe`
 descarta o alfa e deixa a opacidade para o CSS.
 
+**As imagens são servidas daqui, não da API.** A valorant-api entrega PNG de
+2048×1860 para retratos que a tela desenha com 216px, e de 1024×1024 para
+ícones de 17px: a grade de agentes sozinha baixava **19 MB**. `npm run midia`
+baixa tudo uma vez, redimensiona e grava em `public/midia` — 82,5 MB viram
+2,7 MB, um corte de 97%.
+
+As imagens ficam versionadas, e não geradas no build, porque um build que
+depende de um serviço de terceiros estar de pé é um build que quebra sozinho
+num domingo. O preço é rodar `npm run midia` quando a Riot lançar agente novo;
+até lá, a diretiva `reserva` faz o `<img>` cair na URL da API para o que não
+tiver cópia local — o agente aparece pesado, mas aparece.
+
 ## Publicação
 
 Vercel, ligada a este repositório: cada push na `main` publica.

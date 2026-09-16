@@ -70,6 +70,11 @@ export class DadosService {
     });
   }
 
+  /** Um agente pelo uuid da rota, ou `undefined` enquanto os dados não chegaram. */
+  agentePorUuid(uuid: string): Agente | undefined {
+    return this.agentes().find((a) => a.uuid === uuid);
+  }
+
   /** Troca o fundo. Chamado a cada navegação, para a tela nunca repetir. */
   sortearFundo(candidatos: Mapa[] = this.mapas()): void {
     const comSplash = candidatos.filter((m) => m.splash);

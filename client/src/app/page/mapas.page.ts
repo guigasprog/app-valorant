@@ -1,6 +1,7 @@
 import { ChangeDetectionStrategy, Component, computed, inject } from '@angular/core';
 import { DadosService } from '../services/dados.service';
-import { modoDoMapa, NOME_MODO, type Mapa, type ModoMapa } from '../models/valorant';
+import { ReservaDirective } from '../component/reserva.directive';
+import { modoDoMapa, NOME_MODO, splashDe, type Mapa, type ModoMapa } from '../models/valorant';
 
 /**
  * Os mapas onde se joga, separados por modo.
@@ -11,6 +12,7 @@ import { modoDoMapa, NOME_MODO, type Mapa, type ModoMapa } from '../models/valor
  */
 @Component({
   selector: 'app-mapas',
+  imports: [ReservaDirective],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <div class="envolve">
@@ -29,7 +31,8 @@ import { modoDoMapa, NOME_MODO, type Mapa, type ModoMapa } from '../models/valor
               <li class="card canto">
                 <img
                   class="splash"
-                  [src]="mapa.splash"
+                  [src]="imagem(mapa)"
+                  [reserva]="mapa.splash"
                   [alt]="'Mapa ' + mapa.displayName"
                   loading="lazy"
                   decoding="async"
@@ -101,6 +104,7 @@ import { modoDoMapa, NOME_MODO, type Mapa, type ModoMapa } from '../models/valor
     .card:hover {
       transform: translateY(-4px);
       border-color: var(--vermelho);
+      --cor-canto: var(--vermelho);
     }
 
     .splash {
@@ -158,4 +162,6 @@ export class MapasPage {
   nomeDoModo(modo: ModoMapa): string {
     return NOME_MODO[modo];
   }
+
+  imagem = (m: Mapa) => splashDe(m);
 }

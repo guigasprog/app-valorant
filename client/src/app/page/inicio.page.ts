@@ -92,6 +92,9 @@ import { DadosService } from '../services/dados.service';
     .portal:hover {
       background: var(--noite-card);
       border-color: var(--vermelho);
+      /* O triângulo do canto acompanha a borda — senão ele fica cinza sobre um
+         contorno vermelho e denuncia que são duas coisas. */
+      --cor-canto: var(--vermelho);
       transform: translateY(-3px);
     }
 
