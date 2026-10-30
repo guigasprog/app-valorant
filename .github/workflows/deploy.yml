@@ -3,7 +3,7 @@ name: CI/CD Coolify Local
 on:
   push:
     branches:
-      - main  # Ajuste para a sua branch atual (main ou master)
+      - main  # Lembre-se de verificar se sua branch atual é 'main' ou 'master'
 
 jobs:
   deploy:
@@ -12,4 +12,5 @@ jobs:
     steps:
       - name: Trigger Coolify Deploy
         run: |
-          curl --request POST '${{ secrets.COOLIFY_WEBHOOK_URL }}'
+          curl --request GET '${{ secrets.COOLIFY_WEBHOOK_URL }}' \
+               --header 'Authorization: Bearer ${{ secrets.COOLIFY_TOKEN }}'
