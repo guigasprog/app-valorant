@@ -2,6 +2,7 @@ import { ChangeDetectionStrategy, Component, computed, inject } from '@angular/c
 import { DadosService } from '../services/dados.service';
 import { RouterLink } from '@angular/router';
 import { ReservaDirective } from '../component/reserva.directive';
+import { FavoritoComponent } from '../component/favorito.component';
 import { modoDoMapa, NOME_MODO, splashDe, type Mapa, type ModoMapa } from '../models/valorant';
 
 /**
@@ -13,7 +14,7 @@ import { modoDoMapa, NOME_MODO, splashDe, type Mapa, type ModoMapa } from '../mo
  */
 @Component({
   selector: 'app-mapas',
-  imports: [ReservaDirective, RouterLink],
+  imports: [ReservaDirective, RouterLink, FavoritoComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <div class="envolve">
@@ -31,6 +32,7 @@ import { modoDoMapa, NOME_MODO, splashDe, type Mapa, type ModoMapa } from '../mo
             @for (mapa of grupo.mapas; track mapa.uuid) {
               <li>
                 <a class="card canto" [routerLink]="['/mapas', mapa.uuid]">
+                <app-favorito class="card-fav" tipo="mapa" [uuid]="mapa.uuid" />
                 <img
                   class="splash"
                   [src]="imagem(mapa)"
@@ -92,6 +94,13 @@ import { modoDoMapa, NOME_MODO, splashDe, type Mapa, type ModoMapa } from '../mo
       display: grid;
       gap: 1rem;
       grid-template-columns: repeat(auto-fill, minmax(min(100%, 19rem), 1fr));
+    }
+
+    .card-fav {
+      position: absolute;
+      top: 0.5rem;
+      right: 0.5rem;
+      z-index: 2;
     }
 
     .card {

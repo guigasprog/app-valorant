@@ -1,5 +1,7 @@
-import { ChangeDetectionStrategy, Component, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, ElementRef, HostListener, inject, signal } from '@angular/core';
 import { RouterLink, RouterLinkActive } from '@angular/router';
+import { BuscaComponent } from './busca.component';
+import { FavoritosService } from '../services/favoritos.service';
 
 /**
  * O menu. Antes eram `<h5>` com `cursor: pointer`, três dos quais não faziam
@@ -12,7 +14,7 @@ import { RouterLink, RouterLinkActive } from '@angular/router';
  */
 @Component({
   selector: 'app-header',
-  imports: [RouterLink, RouterLinkActive],
+  imports: [RouterLink, RouterLinkActive, BuscaComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <header>
@@ -46,6 +48,23 @@ import { RouterLink, RouterLinkActive } from '@angular/router';
           </a>
         }
       </nav>
+
+      <div class="acoes">
+        <app-busca />
+        <a
+          routerLink="/favoritos"
+          class="btn-fav"
+          aria-label="Favoritos"
+          routerLinkActive="ativo"
+        >
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
+          </svg>
+          @if (favoritos.total() > 0) {
+            <span class="badge">{{ favoritos.total() }}</span>
+          }
+        </a>
+      </div>
     </header>
   `,
   styles: `
@@ -109,9 +128,49 @@ import { RouterLink, RouterLinkActive } from '@angular/router';
       border-bottom-color: var(--vermelho);
     }
 
+    .acoes {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      margin-left: auto;
+    }
+
+    .btn-fav {
+      position: relative;
+      display: grid;
+      place-items: center;
+      width: 36px;
+      height: 36px;
+      color: var(--cinza);
+      border: 1px solid var(--borda);
+      transition: color 140ms ease, border-color 140ms ease;
+    }
+
+    .btn-fav:hover,
+    .btn-fav.ativo {
+      color: var(--vermelho);
+      border-color: var(--vermelho);
+    }
+
+    .badge {
+      position: absolute;
+      top: -4px;
+      right: -4px;
+      min-width: 16px;
+      height: 16px;
+      display: grid;
+      place-items: center;
+      padding: 0 4px;
+      font-size: 0.58rem;
+      font-weight: 700;
+      line-height: 1;
+      color: var(--noite);
+      background: var(--vermelho);
+      border-radius: 8px;
+    }
+
     .sanduiche {
       display: none;
-      margin-left: auto;
       flex-direction: column;
       gap: 5px;
       padding: 0.4rem;
@@ -132,7 +191,6 @@ import { RouterLink, RouterLinkActive } from '@angular/router';
       }
 
       nav {
-        display: none;
         position: absolute;
         inset-inline: 0;
         top: 100%;
@@ -142,10 +200,19 @@ import { RouterLink, RouterLinkActive } from '@angular/router';
         background: var(--noite);
         border-bottom: 1px solid var(--borda);
         z-index: 20;
+        max-height: 0;
+        opacity: 0;
+        overflow: hidden;
+        pointer-events: none;
+        transition:
+          max-height 250ms ease,
+          opacity 200ms ease;
       }
 
       nav.aberto {
-        display: flex;
+        max-height: 20rem;
+        opacity: 1;
+        pointer-events: auto;
       }
 
       nav a {
@@ -160,7 +227,16 @@ import { RouterLink, RouterLinkActive } from '@angular/router';
   `,
 })
 export class HeaderComponent {
+  private readonly el = inject(ElementRef);
+  readonly favoritos = inject(FavoritosService);
   readonly aberto = signal(false);
+
+  @HostListener('document:click', ['$event'])
+  fecharFora(event: MouseEvent): void {
+    if (this.aberto() && !this.el.nativeElement.contains(event.target)) {
+      this.aberto.set(false);
+    }
+  }
 
   readonly itens = [
     { nome: 'Início', rota: '/' },

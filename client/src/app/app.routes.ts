@@ -46,6 +46,11 @@ export const routes: Routes = [
     loadComponent: () => import('./page/arma.page').then((m) => m.ArmaPage),
   },
   {
+    path: 'favoritos',
+    title: 'Favoritos — VALORANT',
+    loadComponent: () => import('./page/favoritos.page').then((m) => m.FavoritosPage),
+  },
+  {
     path: 'privacidade',
     title: 'Privacidade — VALORANT',
     loadComponent: () => import('./page/privacidade.page').then((m) => m.PrivacidadePage),

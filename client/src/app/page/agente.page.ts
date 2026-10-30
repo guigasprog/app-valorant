@@ -36,7 +36,8 @@ import {
         }
 
         <div class="conteudo">
-          <div class="coluna">
+          <!-- Cabeçalho: migalha, função, nome e bio -->
+          <div class="cabecalho">
             <nav class="migalha">
               <a routerLink="/agentes">← Todos os agentes</a>
             </nav>
@@ -53,8 +54,20 @@ import {
 
             <h1 class="vazado">{{ a.displayName }}</h1>
             <p class="bio">{{ a.description }}</p>
+          </div>
 
-            <section class="habilidades" aria-label="Habilidades">
+          <!-- Skill showcase: retrato fixo à esquerda, painel de skill à direita -->
+          <section class="showcase" aria-label="Habilidades">
+            <div class="retrato">
+              <img
+                [src]="retrato(a)"
+                [reserva]="a.fullPortrait ?? a.bustPortrait"
+                [alt]="a.displayName"
+                decoding="async"
+              />
+            </div>
+
+            <div class="painel-skill">
               <ul class="teclas" role="tablist">
                 @for (h of habilidades(a); track h.slot) {
                   <li role="presentation">
@@ -79,22 +92,26 @@ import {
               </ul>
 
               @if (escolhida(); as h) {
-                <div class="detalhe" role="tabpanel">
-                  <h2>{{ h.displayName }}</h2>
-                  <p>{{ h.description }}</p>
+                <div class="detalhe" role="tabpanel" [attr.data-slot]="h.slot">
+                  <div class="detalhe-icone">
+                    <img
+                      [src]="iconeHabilidade(a, h)"
+                      [reserva]="h.displayIcon"
+                      [alt]="''"
+                      aria-hidden="true"
+                    />
+                  </div>
+                  <div class="detalhe-texto">
+                    <h2>{{ h.displayName }}</h2>
+                    @if (tecla(h); as t) {
+                      <span class="detalhe-tecla">{{ t }}</span>
+                    }
+                    <p>{{ h.description }}</p>
+                  </div>
                 </div>
               }
-            </section>
-          </div>
-
-          <div class="retrato">
-            <img
-              [src]="retrato(a)"
-              [reserva]="a.fullPortrait ?? a.bustPortrait"
-              [alt]="a.displayName"
-              decoding="async"
-            />
-          </div>
+            </div>
+          </section>
         </div>
 
         <!-- O elenco inteiro, rolável, como no site do jogo: dá para pular de
@@ -152,24 +169,14 @@ import {
 
     .conteudo {
       position: relative;
-      display: grid;
-      gap: 2rem;
-      align-items: center;
       width: 100%;
       max-width: 82rem;
       margin-inline: auto;
-      /* A faixa da direita é do elenco; o padding evita que o retrato passe
-         por baixo dele em telas largas. */
       padding: clamp(1.5rem, 4vw, 3rem) clamp(1rem, 4vw, 2.5rem);
       padding-right: clamp(1rem, 4vw, 7rem);
     }
 
-    @media (min-width: 900px) {
-      .conteudo {
-        grid-template-columns: minmax(0, 1fr) minmax(0, 0.9fr);
-      }
-    }
-
+    /* ── Cabeçalho ── */
     .migalha a {
       font-size: 0.72rem;
       font-weight: 700;
@@ -207,15 +214,51 @@ import {
     }
 
     .bio {
-      max-width: 44ch;
+      max-width: 52ch;
       margin-top: 1.25rem;
       line-height: 1.7;
       color: rgba(236, 232, 225, 0.75);
     }
 
-    /* ── Habilidades ── */
-    .habilidades {
+    /* ── Skill showcase ── */
+    .showcase {
+      display: grid;
+      gap: 2rem;
+      align-items: start;
       margin-top: 2.5rem;
+    }
+
+    @media (min-width: 900px) {
+      .showcase {
+        grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+        align-items: center;
+      }
+    }
+
+    /* ── Retrato: fixo, não muda ao trocar de skill ── */
+    .retrato {
+      display: flex;
+      justify-content: center;
+    }
+
+    .retrato img {
+      width: 100%;
+      max-width: 28rem;
+      height: auto;
+      filter: drop-shadow(0 30px 60px rgba(0, 0, 0, 0.6));
+    }
+
+    @media (max-width: 899px) {
+      .retrato img {
+        max-width: 18rem;
+      }
+    }
+
+    /* ── Painel de skill ── */
+    .painel-skill {
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
     }
 
     .teclas {
@@ -253,7 +296,6 @@ import {
       transition: filter 150ms ease;
     }
 
-    /* Os ícones vêm brancos; sobre o fundo claro do estado ativo eles sumiriam. */
     .teclas button.ativa img {
       filter: invert(1);
     }
@@ -271,10 +313,47 @@ import {
       color: var(--noite);
     }
 
+    /* ── Detalhe da habilidade: ícone grande + texto ── */
     .detalhe {
-      margin-top: 1.5rem;
-      min-height: 8rem;
-      max-width: 46ch;
+      display: flex;
+      gap: 1.25rem;
+      align-items: flex-start;
+      min-height: 10rem;
+      padding: 1.25rem;
+      background: rgba(0, 0, 0, 0.25);
+      border: 1px solid rgba(236, 232, 225, 0.1);
+      animation: skill-in 220ms ease both;
+    }
+
+    @keyframes skill-in {
+      from {
+        opacity: 0;
+        transform: translateY(8px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .detalhe-icone {
+      flex-shrink: 0;
+      width: 72px;
+      height: 72px;
+      display: grid;
+      place-items: center;
+      background: rgba(0, 0, 0, 0.3);
+      border: 1px solid rgba(236, 232, 225, 0.15);
+    }
+
+    .detalhe-icone img {
+      width: 48px;
+      height: 48px;
+    }
+
+    .detalhe-texto {
+      flex: 1;
+      min-width: 0;
     }
 
     .detalhe h2 {
@@ -282,32 +361,22 @@ import {
       letter-spacing: 0.06em;
     }
 
+    .detalhe-tecla {
+      display: inline-block;
+      margin-top: 0.3rem;
+      padding: 0.15rem 0.5rem;
+      font-size: 0.62rem;
+      font-weight: 700;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--noite);
+      background: var(--vermelho);
+    }
+
     .detalhe p {
-      margin-top: 0.6rem;
+      margin-top: 0.75rem;
       line-height: 1.7;
       color: rgba(236, 232, 225, 0.75);
-    }
-
-    /* ── Retrato ── */
-    .retrato {
-      display: flex;
-      justify-content: center;
-    }
-
-    .retrato img {
-      width: 100%;
-      max-width: 34rem;
-      height: auto;
-      filter: drop-shadow(0 30px 60px rgba(0, 0, 0, 0.6));
-    }
-
-    @media (max-width: 899px) {
-      .retrato {
-        order: -1;
-      }
-      .retrato img {
-        max-width: 20rem;
-      }
     }
 
     /* ── Elenco ── */
@@ -357,8 +426,8 @@ import {
       object-fit: cover;
     }
 
-    /* No celular não há canto direito que sobre: o elenco vira uma fita
-       horizontal presa embaixo. */
+    /* No celular o elenco vira uma fita horizontal presa embaixo, com
+       safe-area para não ficar coberto pela barra do sistema. */
     @media (max-width: 899px) {
       .elenco {
         position: sticky;
@@ -371,6 +440,7 @@ import {
         overflow-y: hidden;
         border-left: none;
         border-top: 1px solid rgba(236, 232, 225, 0.12);
+        padding-bottom: env(safe-area-inset-bottom, 0px);
       }
 
       .elenco ul {
@@ -397,7 +467,6 @@ import {
     }
 
     .voltar {
-      /* Botão preenchido: o canto vira sombra, não a cor da borda. */
       --cor-canto: rgba(0, 0, 0, 0.45);
 
       display: inline-block;

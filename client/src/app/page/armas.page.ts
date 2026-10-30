@@ -2,6 +2,7 @@ import { ChangeDetectionStrategy, Component, computed, inject } from '@angular/c
 import { DadosService } from '../services/dados.service';
 import { RouterLink } from '@angular/router';
 import { ReservaDirective } from '../component/reserva.directive';
+import { FavoritoComponent } from '../component/favorito.component';
 import { categoriaDe, iconeDaArma, type Arma } from '../models/valorant';
 
 /** A ordem da loja no jogo — alfabética aqui não diria nada a ninguém. */
@@ -17,7 +18,7 @@ const ORDEM = [
 
 @Component({
   selector: 'app-armas',
-  imports: [ReservaDirective, RouterLink],
+  imports: [ReservaDirective, RouterLink, FavoritoComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <div class="envolve">
@@ -46,6 +47,7 @@ const ORDEM = [
             @for (arma of grupo.armas; track arma.uuid) {
               <li>
                 <a class="card canto" [routerLink]="['/armas', arma.uuid]">
+                <app-favorito class="card-fav" tipo="arma" [uuid]="arma.uuid" />
                 <img
                   [src]="imagem(arma)"
                   [reserva]="arma.displayIcon"
@@ -123,7 +125,15 @@ const ORDEM = [
       grid-template-columns: repeat(auto-fill, minmax(min(100%, 13rem), 1fr));
     }
 
+    .card-fav {
+      position: absolute;
+      top: 0.3rem;
+      right: 0.3rem;
+      z-index: 2;
+    }
+
     .card {
+      position: relative;
       display: flex;
       flex-direction: column;
       justify-content: space-between;

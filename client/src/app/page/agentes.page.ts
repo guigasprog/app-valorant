@@ -2,6 +2,7 @@ import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@a
 import { RouterLink } from '@angular/router';
 import { DadosService } from '../services/dados.service';
 import { ReservaDirective } from '../component/reserva.directive';
+import { FavoritoComponent } from '../component/favorito.component';
 import {
   gradienteDe,
   iconeDaFuncao,
@@ -25,7 +26,7 @@ import {
  */
 @Component({
   selector: 'app-agentes',
-  imports: [RouterLink, ReservaDirective],
+  imports: [RouterLink, ReservaDirective, FavoritoComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <div class="envolve">
@@ -51,6 +52,7 @@ import {
               class="card canto"
               [style.background]="gradiente(agente)"
             >
+              <app-favorito class="card-fav" tipo="agente" [uuid]="agente.uuid" />
               <div class="retrato">
                 <img
                   [src]="retrato(agente)"
@@ -234,6 +236,19 @@ import {
     .habilidades img {
       width: 16px;
       height: 16px;
+    }
+
+    .card-fav {
+      position: absolute;
+      top: 0.4rem;
+      right: 0.4rem;
+      z-index: 2;
+    }
+
+    @media (max-width: 480px) {
+      .retrato {
+        aspect-ratio: 1 / 1;
+      }
     }
 
     .vazio {

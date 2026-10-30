@@ -292,14 +292,20 @@ import {
     /*
      * 420px é o tamanho REAL do maior arquivo que a API oferece para a arma:
      * displayIcon e shopData.newImage são o mesmo 420x128. Esticar além disso
-     * não revela detalhe nenhum, só borra. A qualidade ruim vinha daqui, não
-     * da compressão.
+     * não revela detalhe nenhum, só borra. O padding e fundo sutil preenchem
+     * o espaço vazio em telas grandes.
      */
     .arte {
       width: 100%;
       max-width: 420px;
       height: auto;
       justify-self: center;
+      padding: 2.5rem;
+      background: radial-gradient(
+        ellipse at center,
+        rgba(255, 70, 85, 0.06) 0%,
+        transparent 70%
+      );
       filter: drop-shadow(0 20px 40px rgba(0, 0, 0, 0.6));
     }
 
