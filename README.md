@@ -3,13 +3,15 @@
 Catálogo dos agentes, mapas e armas de VALORANT em português, montado sobre a
 [valorant-api.com](https://valorant-api.com) — a mesma fonte que o jogo usa.
 
-Angular 19, sem back-end: o app fala direto com a API pública.
+Angular 19 no front e uma API própria em Node (`api/`) no meio do caminho: o
+navegador só fala com `/api`, e é a API que fala com a valorant-api, com cache.
 
 ```bash
-cd client
-npm install
-npm start          # http://localhost:4200
-npm run build      # dist/client/browser
+# terminal 1 — API
+cd api && npm install && npm run dev     # http://localhost:3000/api
+
+# terminal 2 — front (o proxy.conf.json repassa /api para a porta 3000)
+cd client && npm install && npm start    # http://localhost:4200
 ```
 
 ## Como está organizado
@@ -80,3 +82,44 @@ fallback de SPA. O site só funcionava se você entrasse pela raiz e clicasse.
 
 O repositório `valorant-review`, que guardava o build compilado para o GitHub
 Pages, fica obsoleto quando este for ao ar na Vercel.
+
+## API (`api/`)
+
+Uma API leve em Node 22 + Express que fica entre o app e a valorant-api: guarda
+as respostas em memória (6 h por padrão). O front consome
+`/api/valorant/{agents,maps,weapons,contenttiers}`, que repassa o formato cru
+(as páginas dependem dele); as demais rotas devolvem os dados já tratados, com
+as mesmas regras de `models/valorant.ts`.
+
+| Rota | O que devolve |
+| --- | --- |
+| `GET /api` | a lista de rotas |
+| `GET /api/saude` | status e estado do cache |
+| `GET /api/agentes?funcao=&busca=` | agentes jogáveis, resumidos, com as cores do card |
+| `GET /api/agentes/:uuid` | habilidades na ordem do jogo, com a tecla (C, Q, E, X) |
+| `GET /api/funcoes` | funções e seus agentes |
+| `GET /api/mapas?modo=padrao\|duelo` | só os 18 jogáveis, com os sítios (A/B/C) |
+| `GET /api/mapas/:uuid` | callouts posicionados no minimapa e agrupados por região |
+| `GET /api/armas?categoria=&busca=&ordenar=` | as armas **sem** as 1405 skins: de 3,44 MB para alguns KB |
+| `GET /api/armas/:uuid` | faixas de dano, acertos para abater e skins com a edição |
+| `GET /api/estatisticas` | agregados: agentes por função, preço médio por categoria, top 5 |
+| `GET /api/valorant/:recurso?language=` | repasse cru com cache — é o que o front usa |
+
+Todas aceitam `?idioma=en-US` (ou outro da valorant-api); o padrão é `pt-BR`.
+
+## Docker
+
+`docker-compose.yml` sobe dois containers: `web` (build do Angular servido
+pelo nginx, com fallback de SPA) e `api`. O nginx repassa `/api/` para a API,
+então para o navegador é tudo a mesma origem. Só o `web` fica exposto.
+
+```bash
+# local ou num servidor sem Coolify — publica na porta 8080
+docker compose -f docker-compose.yml -f docker-compose.porta.yml up -d --build
+```
+
+No **Coolify** da FEMA (`https://computacao.fema.edu.br`, o mesmo do
+`.github/workflows/deploy.yml`): o recurso usa o build pack *Docker Compose*, e
+o domínio do app (um subdomínio, como `https://valorant.computacao.fema.edu.br`)
+vai no serviço `web`. O push na `main` continua disparando o deploy — se o
+recurso for recriado, atualize o `uuid` no workflow.

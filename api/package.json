@@ -1,0 +1,16 @@
+{
+  "name": "api-valorant",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "API leve sobre a valorant-api.com: cache em memória e dados já tratados em pt-BR",
+  "main": "src/server.js",
+  "engines": { "node": ">=22" },
+  "scripts": {
+    "start": "node src/server.js",
+    "dev": "node --watch src/server.js"
+  },
+  "dependencies": {
+    "express": "^5.1.0"
+  }
+}

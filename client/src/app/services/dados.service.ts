@@ -33,7 +33,12 @@ export type Estado = 'carregando' | 'pronto' | 'erro';
 @Injectable({ providedIn: 'root' })
 export class DadosService {
   private readonly http = inject(HttpClient);
-  private readonly base = 'https://valorant-api.com/v1';
+  /**
+   * A API própria (pasta `api/`), que repassa a valorant-api com cache. Mesma
+   * origem do site: em produção o nginx encaminha /api, e no `npm start` quem
+   * encaminha é o proxy.conf.json.
+   */
+  private readonly base = '/api/valorant';
 
   readonly estado = signal<Estado>('carregando');
   readonly agentes = signal<Agente[]>([]);

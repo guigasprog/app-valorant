@@ -32,8 +32,8 @@ import { splashDe, type Mapa } from './models/valorant';
         <div class="splash">
           <h1 class="vazado-vermelho">SEM SINAL</h1>
           <p>
-            Não deu para falar com a valorant-api.com. Pode ser a sua conexão ou
-            um soluço do serviço.
+            Não deu para carregar os dados do VALORANT. Pode ser a sua conexão
+            ou um soluço do serviço.
           </p>
           <button type="button" class="canto" (click)="dados.carregar()">
             Tentar de novo

@@ -1,0 +1,36 @@
+# Sobe o front (Angular + nginx) e a API (Node).
+#
+# Só o `web` recebe tráfego de fora; a API fica na rede interna e é alcançada
+# pelo nginx em /api. No Coolify (https://computacao.fema.edu.br), o domínio do
+# app vai no serviço `web` — ex.: https://valorant.computacao.fema.edu.br — e o
+# proxy do Coolify cuida do HTTPS. Não use o domínio do próprio painel.
+#
+# Fora do Coolify, para publicar uma porta no host:
+#   docker compose -f docker-compose.yml -f docker-compose.porta.yml up -d --build
+
+services:
+  api:
+    build: ./api
+    restart: unless-stopped
+    environment:
+      PORT: 3000
+      IDIOMA_PADRAO: pt-BR
+      CACHE_TTL_MINUTOS: ${CACHE_TTL_MINUTOS:-360}
+      TOKEN_ADMIN: ${TOKEN_ADMIN:-}
+    expose:
+      - "3000"
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://localhost:3000/api/saude').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+
+  web:
+    build: ./client
+    restart: unless-stopped
+    depends_on:
+      api:
+        condition: service_healthy
+    expose:
+      - "80"

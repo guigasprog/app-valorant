@@ -1,0 +1,16 @@
+name: CI/CD Coolify Local
+
+on:
+  push:
+    branches:
+      - main  # Certifique-se de que é a branch que você está subindo
+
+jobs:
+  deploy:
+    runs-on: self-hosted
+
+    steps:
+      - name: Trigger Coolify Deploy
+        run: |
+          curl -i -X POST "http://localhost:8000/api/v1/deploy?uuid=mfueyg5fing6xihbquvdj6yt&force=false" \
+               -H "Authorization: Bearer ${{ secrets.COOLIFY_TOKEN }}"

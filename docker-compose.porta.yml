@@ -1,0 +1,6 @@
+# Para rodar sem Coolify (local ou direto no servidor): publica o nginx na
+# porta WEB_PORT do host (padrão 8080).
+services:
+  web:
+    ports:
+      - "${WEB_PORT:-8080}:80"
