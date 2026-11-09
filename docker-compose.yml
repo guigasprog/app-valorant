@@ -29,8 +29,8 @@ services:
   web:
     build: ./client
     restart: unless-stopped
+    ports:
+      - "38457:80"
     depends_on:
       api:
         condition: service_healthy
-    expose:
-      - "80"
